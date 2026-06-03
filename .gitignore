@@ -44,5 +44,5 @@ next-env.d.ts
 .agent/
 .specify/
 _temp_next/
-specs/
+
 
