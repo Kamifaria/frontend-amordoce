@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0f0c1b;
+  --foreground: #f3f4f6;
+  --game-pink: #ff4a80;
+  --game-purple: #7c3aed;
+  --game-dark: #120e24;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom scrollbar for game text/components */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(18, 14, 36, 0.5);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--game-pink);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2a65;
+}
+
+/* Blinking animation for dialog advance indicator */
+@keyframes blink {
+  0%, 100% { opacity: 0; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(4px); }
+}
+
+.blink-arrow {
+  animation: blink 1.2s infinite;
+}
