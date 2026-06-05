@@ -7,7 +7,9 @@ import { SpriteCharacter } from './SpriteCharacter';
 import { DialogueBox } from './DialogueBox';
 import { ChoiceOverlay } from './ChoiceOverlay';
 import { useGameStore } from '@/store/useGameStore';
-import { XCircle } from 'lucide-react';
+import { XCircle, Smartphone, Sparkles, Coins } from 'lucide-react';
+import { PhoneOverlay } from './PhoneOverlay';
+import { Choice } from '@/shared/types';
 
 export const GameScreen: React.FC = () => {
   const {
@@ -23,7 +25,8 @@ export const GameScreen: React.FC = () => {
     advance,
     errorMsg,
     clearError,
-    isLoading
+    isLoading,
+    togglePhone
   } = useGameStore();
 
   // Load game state on mount
@@ -39,7 +42,7 @@ export const GameScreen: React.FC = () => {
     advance();
   };
 
-  const handleSelectChoice = (choice: any) => {
+  const handleSelectChoice = (choice: Choice) => {
     if (isLoading) return;
     // Find index of choice
     const index = choices?.findIndex(c => c.nextNodeId === choice.nextNodeId) ?? -1;
@@ -53,6 +56,30 @@ export const GameScreen: React.FC = () => {
       {/* Visual Novel Fixed Aspect Board */}
       {currentNodeId ? (
         <GameContainer>
+          {/* Top HUD Bar */}
+          <div className="absolute top-4 left-4 right-4 z-30 flex justify-between items-center pointer-events-auto">
+            {/* PA & Gold counters */}
+            <div className="flex gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 shadow-lg text-xs font-bold text-white tracking-wide">
+              <div className="flex items-center gap-1.5 text-pink-400">
+                <Sparkles size={14} className="animate-pulse" />
+                <span>PA: {playerPA}</span>
+              </div>
+              <div className="w-[1px] bg-white/20 self-stretch" />
+              <div className="flex items-center gap-1.5 text-amber-400">
+                <Coins size={14} />
+                <span>Gold: {playerGold}</span>
+              </div>
+            </div>
+
+            {/* Phone Button */}
+            <button
+              onClick={togglePhone}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-lg active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
+            >
+              <Smartphone size={20} />
+            </button>
+          </div>
+
           {/* Background Scene */}
           <Cenario backgroundUrl={backgroundUrl} />
 
@@ -81,6 +108,9 @@ export const GameScreen: React.FC = () => {
               playerPA={playerPA}
             />
           )}
+
+          {/* Smartphone Overlay */}
+          <PhoneOverlay />
 
           {/* Floating PA/Gold Warning Alert Overlay */}
           {errorMsg && (

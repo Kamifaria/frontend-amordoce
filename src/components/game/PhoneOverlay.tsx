@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Smartphone, 
   X, 
   Phone, 
   PhoneOff, 
@@ -197,7 +196,7 @@ export const PhoneOverlay: React.FC = () => {
                       <span className="block text-[10px] font-bold text-pink-400 uppercase tracking-widest mb-1.5">
                         Mensagem de Voz
                       </span>
-                      "{getCallDialogue(activeCall.characterId, currentAffinity)}"
+                      &ldquo;{getCallDialogue(activeCall.characterId, currentAffinity)}&rdquo;
                     </motion.div>
                   )}
                 </div>

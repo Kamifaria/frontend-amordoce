@@ -23,6 +23,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
 
   // Restart typewriter effect whenever dialogue text changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsTyping(true);
     setDisplayedText('');
     textIndexRef.current = 0;

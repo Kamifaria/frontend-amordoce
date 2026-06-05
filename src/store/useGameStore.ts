@@ -112,7 +112,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       // Map backend affinities to frontend format
       const backendAffinities = data.affinities || [];
       const mappedAffinities: Record<string, number> = { ...get().affinities };
-      backendAffinities.forEach((aff: any) => {
+      backendAffinities.forEach((aff: { character_id: string; affinity_score: number }) => {
         if (aff.character_id) {
           mappedAffinities[aff.character_id.toLowerCase()] = aff.affinity_score;
         }
