@@ -854,7 +854,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     setTimeout(() => {
       state.playSound('ring');
       let replyText = 'Ah, legal! Vamos conversar pessoalmente na escola amanhã, chérie!';
-      if (characterId === 'maggie' && text.toLowerCase().trim() === 'ei maggie conta decode paramore') {
+      if (characterId === 'maggie' && text.toLowerCase().trim() === 'ei maggie canta decode paramore') {
         replyText = "On my own (I'm screaming: I love you so)\nOn my own (but my thoughts you can't decode)\n\nBut how did we get here\nWhen I used to know you so well?\nYeah\nHow did we get here?\nWell, I think I know";
       }
 
