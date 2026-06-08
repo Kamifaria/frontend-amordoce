@@ -4,6 +4,7 @@ import React from 'react';
 import { Choice } from '../../shared/types';
 import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
+import { useGameStore } from '../../store/useGameStore';
 
 interface ChoiceOverlayProps {
   choices: Choice[];
@@ -16,6 +17,8 @@ export const ChoiceOverlay: React.FC<ChoiceOverlayProps> = ({
   onSelectChoice,
   playerPA,
 }) => {
+  const playSound = useGameStore((state) => state.playSound);
+
   return (
     <div 
       className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/45 p-6 backdrop-blur-xs"
@@ -33,6 +36,9 @@ export const ChoiceOverlay: React.FC<ChoiceOverlayProps> = ({
               transition={{ delay: index * 0.1, duration: 0.3 }}
               disabled={!hasEnoughPA}
               onClick={() => onSelectChoice(choice)}
+              onMouseEnter={() => {
+                if (hasEnoughPA) playSound('click');
+              }}
               className={`group flex w-full items-center justify-between rounded-xl border px-5 py-4 text-left transition-all ${
                 hasEnoughPA
                   ? 'cursor-pointer border-pink-500/20 bg-[#120e24]/90 text-slate-100 hover:border-pink-500/70 hover:bg-gradient-to-r hover:from-purple-900/40 hover:to-pink-900/40 hover:shadow-lg hover:shadow-pink-500/10'

@@ -6,6 +6,7 @@ export interface Choice {
     characterId: string;
     amount: number;
   };
+  focusedCharacter?: string;
 }
 
 export interface DialogueNode {
@@ -17,6 +18,8 @@ export interface DialogueNode {
   text: string;
   choices?: Choice[];
   next?: string;
+  triggerChatCharacterId?: string;
+  triggerChatText?: string;
 }
 
 export interface PhoneContact {
@@ -43,3 +46,29 @@ export interface DatingTip {
   content: string;
   unlockedAt: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  sender: 'player' | string; // 'player' or characterId
+  text: string;
+  timestamp: string;
+  choices?: {
+    text: string;
+    nextMessageId: string;
+    affinityChange?: {
+      characterId: string;
+      amount: number;
+    };
+  }[];
+  nextMessageId?: string;
+}
+
+export interface ChatThread {
+  characterId: string;
+  characterName: string;
+  avatarColor: string;
+  messages: ChatMessage[];
+  unread: boolean;
+  activeNodeId?: string;
+}
+

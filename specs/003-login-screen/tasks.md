@@ -18,7 +18,7 @@
 
 **Purpose**: Project initialization and styling setup for the login portal
 
-- [ ] T001 Define color variables and fonts in `src/app/globals.css`
+- [x] T001 Define color variables and fonts in `src/app/globals.css`
 
 ---
 
@@ -26,7 +26,7 @@
 
 **Purpose**: Core layout components that must be present for the page setup
 
-- [ ] T002 Create initial login page container layout at `src/app/login/page.tsx`
+- [x] T002 Create initial login page container layout at `src/app/login/page.tsx`
 
 ---
 
@@ -38,9 +38,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T003 [P] [US1] Create top authentication bar in `src/components/game/TopLoginBar.tsx`
-- [ ] T004 [P] [US1] Integrate `TopLoginBar` and classic background style in `src/app/login/page.tsx`
-- [ ] T005 [US1] Set up form validation and login logic in `src/components/game/TopLoginBar.tsx`
+- [x] T003 [P] [US1] Create top authentication bar in `src/components/game/TopLoginBar.tsx`
+- [x] T004 [P] [US1] Integrate `TopLoginBar` and classic background style in `src/app/login/page.tsx`
+- [x] T005 [US1] Set up form validation and login logic in `src/components/game/TopLoginBar.tsx`
 
 ---
 
@@ -52,9 +52,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T006 [US2] Create Hero presentation component in `src/components/game/HeroSection.tsx`
-- [ ] T007 [US2] Add counter statistics and "JOGAR" CTA button to `src/components/game/HeroSection.tsx`
-- [ ] T008 [US2] Mount the `HeroSection` on the page `src/app/login/page.tsx`
+- [x] T006 [US2] Create Hero presentation component in `src/components/game/HeroSection.tsx`
+- [x] T007 [US2] Add counter statistics and "JOGAR" CTA button to `src/components/game/HeroSection.tsx`
+- [x] T008 [US2] Mount the `HeroSection` on the page `src/app/login/page.tsx`
 
 ---
 
@@ -66,8 +66,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T009 [US3] Create vertical navigation links in `src/components/game/SideNavMenu.tsx`
-- [ ] T010 [US3] Add social media icon links in `src/components/game/SideNavMenu.tsx` or `src/app/login/page.tsx`
+- [x] T009 [US3] Create vertical navigation links in `src/components/game/SideNavMenu.tsx`
+- [x] T010 [US3] Add social media icon links in `src/components/game/SideNavMenu.tsx` or `src/app/login/page.tsx`
 
 ---
 
@@ -75,5 +75,5 @@
 
 **Purpose**: Refactoring, responsiveness tuning and final verification
 
-- [ ] T011 Verify responsiveness of the top login bar and hero elements on mobile viewports
-- [ ] T012 Run quickstart validation to verify that build passes and linting is correct
+- [x] T011 Verify responsiveness of the top login bar and hero elements on mobile viewports
+- [x] T012 Run quickstart validation to verify that build passes and linting is correct

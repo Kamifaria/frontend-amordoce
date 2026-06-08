@@ -1,17 +1,31 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GameContainer } from './GameContainer';
 import { Cenario } from './Cenario';
 import { SpriteCharacter } from './SpriteCharacter';
 import { DialogueBox } from './DialogueBox';
 import { ChoiceOverlay } from './ChoiceOverlay';
 import { useGameStore } from '@/store/useGameStore';
-import { XCircle, Smartphone, Sparkles, Coins } from 'lucide-react';
+import { 
+  XCircle, 
+  Smartphone, 
+  Coins, 
+  RefreshCw, 
+  LogOut, 
+  Volume2, 
+  VolumeX, 
+  Heart,
+  BookOpen
+} from 'lucide-react';
 import { PhoneOverlay } from './PhoneOverlay';
 import { Choice } from '@/shared/types';
+import { mockStory } from '@/mock/storyData';
 
 export const GameScreen: React.FC = () => {
+  const router = useRouter();
   const {
     currentNodeId,
     playerPA,
@@ -26,7 +40,11 @@ export const GameScreen: React.FC = () => {
     errorMsg,
     clearError,
     isLoading,
-    togglePhone
+    togglePhone,
+    isMuted,
+    toggleMute,
+    affinityNotifications,
+    initStory
   } = useGameStore();
 
   // Load game state on mount
@@ -34,7 +52,7 @@ export const GameScreen: React.FC = () => {
     fetchCurrentGameState();
   }, [fetchCurrentGameState]);
 
-  const activeNode = storyTree[currentNodeId];
+  const activeNode = storyTree[currentNodeId] || mockStory[currentNodeId];
   const isChoiceActive = !!(choices && choices.length > 0);
 
   const handleAdvance = () => {
@@ -51,40 +69,111 @@ export const GameScreen: React.FC = () => {
     }
   };
 
+  const handleRestart = () => {
+    initStory(mockStory, 'start', 100, 50);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-center w-full h-full">
       {/* Visual Novel Fixed Aspect Board */}
       {currentNodeId ? (
         <GameContainer>
-          {/* Top HUD Bar */}
-          <div className="absolute top-4 left-4 right-4 z-30 flex justify-between items-center pointer-events-auto">
+          {/* Top HUD Bar (Unified and isolated within game container) */}
+          <div className="absolute top-4 left-4 right-4 z-30 flex justify-between items-center pointer-events-auto select-none">
             {/* PA & Gold counters */}
-            <div className="flex gap-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 shadow-lg text-xs font-bold text-white tracking-wide">
-              <div className="flex items-center gap-1.5 text-pink-400">
-                <Sparkles size={14} className="animate-pulse" />
-                <span>PA: {playerPA}</span>
+            <div className="flex items-center gap-3 bg-[#120e24]/75 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 shadow-lg text-xs font-bold text-white tracking-wide transition-all hover:bg-[#120e24]/85">
+              <div className="flex items-center gap-1.5 text-pink-400 hover:scale-105 transition-transform">
+                <Heart size={14} className="fill-pink-500/20 text-pink-500 animate-pulse" />
+                <span>PA: <span className="text-white text-sm font-extrabold">{playerPA}</span></span>
               </div>
               <div className="w-[1px] bg-white/20 self-stretch" />
-              <div className="flex items-center gap-1.5 text-amber-400">
-                <Coins size={14} />
-                <span>Gold: {playerGold}</span>
+              <div className="flex items-center gap-1.5 text-amber-400 hover:scale-105 transition-transform">
+                <Coins size={14} className="fill-amber-400/20 text-amber-400" />
+                <span>Gold: <span className="text-white text-sm font-extrabold">${playerGold}</span></span>
               </div>
             </div>
 
-            {/* Phone Button */}
-            <button
-              onClick={togglePhone}
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-lg active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
-            >
-              <Smartphone size={20} />
-            </button>
+            {/* Top Bar Actions */}
+            <div className="flex items-center gap-2">
+              {/* Mute Button */}
+              <button
+                onClick={toggleMute}
+                title={isMuted ? 'Ativar som' : 'Desativar som'}
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-slate-300 hover:text-white border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+              >
+                {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              </button>
+
+              {/* Restart Button */}
+              <button
+                onClick={handleRestart}
+                title="Reiniciar História"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-purple-300 hover:text-purple-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+              >
+                <RefreshCw size={16} />
+              </button>
+
+              {/* Episodes Button */}
+              <button
+                onClick={() => router.push('/game/episodes')}
+                title="Lista de Episódios"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-pink-300 hover:text-pink-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+              >
+                <BookOpen size={16} />
+              </button>
+
+              {/* Phone Button */}
+              <button
+                onClick={togglePhone}
+                title="Abrir Celular"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-md active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
+              >
+                <Smartphone size={16} />
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                title="Sair"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-slate-400 hover:text-red-400 border border-white/10 hover:bg-red-950/20 transition-all cursor-pointer"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Floating relationship notifications overlay */}
+          <div className="absolute right-4 top-16 z-40 flex flex-col gap-2 pointer-events-none">
+            <AnimatePresence>
+              {affinityNotifications.map((notif) => (
+                <motion.div
+                  key={notif.id}
+                  initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -40, scale: 0.8 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="flex items-center gap-2 bg-[#120e24]/90 border border-pink-500/30 px-4 py-2 rounded-full shadow-lg backdrop-blur-md text-xs font-bold text-white"
+                >
+                  <Heart size={14} className="text-pink-500 fill-pink-500 animate-pulse" />
+                  <span className="capitalize">{notif.characterId}:</span>
+                  <span className={notif.amount > 0 ? 'text-green-400' : 'text-red-400'}>
+                    {notif.amount > 0 ? `+${notif.amount}` : notif.amount} LOM
+                  </span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
 
           {/* Background Scene */}
           <Cenario backgroundUrl={backgroundUrl} />
 
           {/* Sprite Character Overlay */}
-          {activeNode && (
+          {activeNode && !backgroundUrl?.toLowerCase().includes('encounter') && !backgroundUrl?.toLowerCase().includes('cg') && (
             <SpriteCharacter 
               characterName={activeNode.characterName} 
               expression={activeNode.expression}
@@ -109,9 +198,6 @@ export const GameScreen: React.FC = () => {
             />
           )}
 
-          {/* Smartphone Overlay */}
-          <PhoneOverlay />
-
           {/* Floating PA/Gold Warning Alert Overlay */}
           {errorMsg && (
             <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-950/90 border border-red-500/30 text-red-200 px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md animate-bounce">
@@ -125,6 +211,8 @@ export const GameScreen: React.FC = () => {
               </button>
             </div>
           )}
+          {/* Smartphone Overlay */}
+          <PhoneOverlay />
         </GameContainer>
       ) : (
         <div className="flex flex-col items-center gap-4">

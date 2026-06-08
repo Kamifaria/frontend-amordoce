@@ -25,11 +25,15 @@ export const PhoneOverlay: React.FC = () => {
     startCall,
     answerCall,
     endCall,
-    unlockedTips
+    unlockedTips,
+    isMuted,
+    toggleMute,
+    chatThreads
   } = useGameStore();
 
-  const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips'>('home');
-  const [muted, setMuted] = useState(false);
+  const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips' | 'chat'>('home');
+  const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+  const [inputText, setInputText] = useState('');
 
   if (!isPhoneOpen) return null;
 
@@ -123,14 +127,18 @@ export const PhoneOverlay: React.FC = () => {
   const currentAffinity = affinities[activeCall?.characterId ?? ''] ?? 0;
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-end p-6 bg-black/45 backdrop-blur-sm pointer-events-auto">
+    <div 
+      onClick={togglePhone}
+      className="absolute inset-0 z-50 flex items-center justify-end p-6 bg-black/60 backdrop-blur-sm pointer-events-auto cursor-pointer"
+    >
       {/* Smartphone container */}
       <motion.div 
+        onClick={(e) => e.stopPropagation()}
         initial={{ y: 200, opacity: 0, scale: 0.95 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 200, opacity: 0, scale: 0.95 }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="relative w-[340px] h-[640px] rounded-[48px] border-[10px] border-[#1e1c2e] bg-[#0c0a1a] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col ring-4 ring-purple-500/20"
+        className="relative w-[340px] h-[640px] rounded-[48px] border-[10px] border-[#1e1c2e] bg-[#0c0a1a] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col ring-4 ring-purple-500/20 cursor-default"
       >
         {/* Smartphone Camera Notch */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-28 h-5 rounded-full bg-[#1e1c2e] z-40 flex items-center justify-center">
@@ -141,8 +149,8 @@ export const PhoneOverlay: React.FC = () => {
         <div className="pt-8 px-6 pb-2 flex justify-between items-center text-[10px] font-semibold text-slate-400 select-none z-30 bg-[#0d0a1c]/80 backdrop-blur-md">
           <span>15:25</span>
           <div className="flex items-center gap-1.5">
-            <button onClick={() => setMuted(!muted)} className="hover:text-white transition-colors">
-              {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+            <button onClick={toggleMute} className="hover:text-white transition-colors cursor-pointer">
+              {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
             </button>
             <span>5G</span>
             <div className="w-5 h-2.5 rounded-sm border border-slate-500 p-0.5 flex items-center">
@@ -249,7 +257,7 @@ export const PhoneOverlay: React.FC = () => {
                     </div>
 
                     {/* App grid */}
-                    <div className="grid grid-cols-2 gap-4 my-8">
+                    <div className="grid grid-cols-2 gap-4 my-4">
                       {/* Contacts App */}
                       <button 
                         onClick={() => setActiveTab('contacts')}
@@ -273,12 +281,31 @@ export const PhoneOverlay: React.FC = () => {
                       </button>
                     </div>
 
+                    {/* Chat App button */}
+                    <button 
+                      onClick={() => setActiveTab('chat')}
+                      className="w-full py-4 px-6 rounded-3xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/10 hover:border-emerald-500/30 transition-all flex items-center justify-between text-slate-100 group cursor-pointer shadow-md my-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center group-hover:scale-105 transition-transform text-2xl">
+                          💬
+                        </div>
+                        <div className="text-left">
+                          <span className="text-xs font-bold tracking-wider block">SweetChat</span>
+                          <span className="text-[10px] text-emerald-300">Mensagens escolares</span>
+                        </div>
+                      </div>
+                      {chatThreads.some(t => t.unread) && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse mr-2" />
+                      )}
+                    </button>
+
                     {/* Bottom Status panel */}
                     <div className="bg-[#120e24]/75 border border-slate-700/20 rounded-2xl p-4 flex items-center gap-3">
                       <Sparkles className="text-pink-400 shrink-0" size={18} />
                       <div className="text-left">
                         <span className="block text-[10px] font-bold text-pink-400 uppercase tracking-widest">Dica Rápida</span>
-                        <p className="text-[11px] text-slate-300 leading-tight mt-0.5">Visite a tela dos Garotos para ligar para eles e receber encontros!</p>
+                        <p className="text-[11px] text-slate-300 leading-tight mt-0.5">Visite a aba SweetChat para conversar e desbloquear encontros!</p>
                       </div>
                     </div>
                   </div>
@@ -367,6 +394,167 @@ export const PhoneOverlay: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* 4. SWEETCHAT APP (WhatsApp-like) */}
+                {activeTab === 'chat' && (
+                  <div className="flex-1 flex flex-col pt-2 h-full">
+                    {!activeThreadId ? (
+                      <>
+                        <div className="flex items-center gap-2 mb-4">
+                          <button onClick={() => setActiveTab('home')} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white cursor-pointer">
+                            <ChevronLeft size={18} />
+                          </button>
+                          <h2 className="text-lg font-bold text-slate-200">SweetChat</h2>
+                        </div>
+                        
+                        {/* Threads list */}
+                        <div className="flex flex-col gap-3 overflow-y-auto max-h-[460px] pr-1">
+                          {chatThreads.length === 0 ? (
+                            <div className="text-center text-slate-500 py-10 text-xs italic">
+                              Nenhuma conversa ativa no momento...
+                            </div>
+                          ) : (
+                            chatThreads.map((thread) => {
+                              const lastMsg = thread.messages[thread.messages.length - 1];
+                              return (
+                                <button
+                                  key={thread.characterId}
+                                  onClick={() => {
+                                    setActiveThreadId(thread.characterId);
+                                    // Mark as read in store
+                                    useGameStore.setState((s) => ({
+                                      chatThreads: s.chatThreads.map(t => t.characterId === thread.characterId ? { ...t, unread: false } : t)
+                                    }));
+                                  }}
+                                  className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#120e2b]/55 hover:bg-[#191438]/70 border border-purple-500/10 hover:border-pink-500/20 transition-all text-left cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center font-bold text-white text-base shadow`}>
+                                      {thread.characterName.charAt(0)}
+                                    </div>
+                                    <div className="max-w-[170px]">
+                                      <span className="font-semibold text-slate-100 text-sm block">{thread.characterName}</span>
+                                      <span className="text-[11px] text-slate-400 truncate block mt-0.5">
+                                        {lastMsg ? lastMsg.text : 'Sem mensagens'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-1.5">
+                                    <span className="text-[9px] text-slate-500">{lastMsg ? lastMsg.timestamp : ''}</span>
+                                    {thread.unread && (
+                                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      // Single conversation window
+                      (() => {
+                        const thread = chatThreads.find(t => t.characterId === activeThreadId);
+                        if (!thread) {
+                          setActiveThreadId(null);
+                          return null;
+                        }
+                        
+                        // Check if last message has choices
+                        const currentChoicesMsg = thread.messages.find(m => m.choices && m.choices.length > 0);
+                        const hasChoices = !!currentChoicesMsg;
+                        
+                        return (
+                          <div className="flex-1 flex flex-col h-full">
+                            {/* Chat Header */}
+                            <div className="flex items-center gap-3 pb-3 border-b border-slate-800/80 mb-3">
+                              <button onClick={() => setActiveThreadId(null)} className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white cursor-pointer">
+                                <ChevronLeft size={18} />
+                              </button>
+                              <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center font-bold text-white text-xs shadow`}>
+                                {thread.characterName.charAt(0)}
+                              </div>
+                              <div className="text-left flex-1">
+                                <span className="font-bold text-slate-200 text-sm block leading-none">{thread.characterName}</span>
+                                <span className="text-[9px] text-emerald-400 font-semibold tracking-wider uppercase block mt-1">Online</span>
+                              </div>
+                            </div>
+                            
+                            {/* Message Bubble Feed */}
+                            <div className="flex-1 overflow-y-auto max-h-[300px] flex flex-col gap-2.5 pr-1 mb-3">
+                              {thread.messages.map((msg) => {
+                                const isPlayer = msg.sender === 'player';
+                                return (
+                                  <div
+                                    key={msg.id}
+                                    className={`flex flex-col max-w-[80%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed ${
+                                      isPlayer
+                                        ? 'bg-gradient-to-tr from-pink-600 to-purple-600 text-white rounded-tr-none self-end text-right font-medium'
+                                        : 'bg-[#181530] text-slate-100 border border-slate-700/20 rounded-tl-none self-start text-left font-medium'
+                                    }`}
+                                  >
+                                    <p>{msg.text}</p>
+                                    <span className={`text-[8px] mt-1 block ${isPlayer ? 'text-pink-200 text-right' : 'text-purple-300 text-left'}`}>
+                                      {msg.timestamp}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {/* Chat Choices or Text Input */}
+                            <div className="mt-auto pt-2 border-t border-slate-800/60 bg-[#0c0a1a]">
+                              {hasChoices && currentChoicesMsg.choices ? (
+                                <div className="flex flex-col gap-2">
+                                  <span className="block text-[9px] font-bold text-pink-400 uppercase tracking-widest text-center">
+                                    Escolha sua resposta
+                                  </span>
+                                  {currentChoicesMsg.choices.map((choice, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => {
+                                        const selectChatChoice = useGameStore.getState().selectChatChoice;
+                                        selectChatChoice(thread.characterId, idx);
+                                      }}
+                                      className="w-full text-[11px] p-2.5 rounded-xl border border-pink-500/20 hover:border-pink-500/50 bg-[#120e24] hover:bg-pink-950/20 text-slate-200 hover:text-white transition-all text-left cursor-pointer font-medium"
+                                    >
+                                      {choice.text}
+                                    </button>
+                                  ))}
+                                </div>
+                              ) : (
+                                <form
+                                  onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (!inputText.trim()) return;
+                                    const sendChatMessage = useGameStore.getState().sendChatMessage;
+                                    sendChatMessage(thread.characterId, inputText);
+                                    setInputText('');
+                                  }}
+                                  className="flex gap-2 items-center"
+                                >
+                                  <input
+                                    type="text"
+                                    value={inputText}
+                                    onChange={(e) => setInputText(e.target.value)}
+                                    placeholder="Digite uma mensagem..."
+                                    className="flex-1 bg-[#120e24] border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 outline-none focus:border-pink-500/40"
+                                  />
+                                  <button
+                                    type="submit"
+                                    className="px-3 py-2 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold transition-colors cursor-pointer"
+                                  >
+                                    Enviar
+                                  </button>
+                                </form>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()
+                    )}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -376,22 +564,29 @@ export const PhoneOverlay: React.FC = () => {
         <div className="py-2.5 flex justify-center bg-[#0c0a1a] border-t border-slate-900 z-30">
           <button 
             onClick={() => {
-              if (activeCall) return;
+              if (activeCall) {
+                endCall();
+              }
               if (activeTab !== 'home') setActiveTab('home');
               else togglePhone();
             }}
             className="w-32 h-1.5 rounded-full bg-slate-500/40 hover:bg-slate-400 transition-colors cursor-pointer"
           />
         </div>
-
-        {/* Close Button on Top Right */}
-        <button 
-          onClick={togglePhone}
-          className="absolute top-8 right-5 p-1.5 rounded-full bg-black/40 hover:bg-black/60 border border-slate-700/20 text-slate-400 hover:text-white transition-all cursor-pointer z-35"
-        >
-          <X size={14} />
-        </button>
       </motion.div>
+
+      {/* Floating Close Button outside the phone frame */}
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          togglePhone();
+        }}
+        className="absolute top-6 left-6 md:top-12 md:left-12 p-3 rounded-full bg-[#120e24]/90 hover:bg-[#1b1736]/90 border border-pink-500/40 text-slate-200 hover:text-white transition-all cursor-pointer z-50 flex items-center gap-2 font-bold shadow-lg shadow-black/55 backdrop-blur-md"
+        title="Fechar Celular"
+      >
+        <X size={18} className="text-pink-400 animate-pulse" />
+        <span className="text-xs uppercase tracking-wider text-slate-200">Voltar para o Jogo</span>
+      </button>
     </div>
   );
 };
