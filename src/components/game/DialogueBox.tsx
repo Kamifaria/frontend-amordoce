@@ -3,12 +3,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useGameStore } from '@/store/useGameStore';
+import { Choice } from '@/shared/types';
 
 interface DialogueBoxProps {
   speakerName: string;
   text: string;
   onAdvance: () => void;
   isChoiceActive: boolean;
+  choices?: Choice[];
+  onSelectChoice?: (choice: Choice) => void;
+  playerPA?: number;
 }
 
 export const DialogueBox: React.FC<DialogueBoxProps> = ({
@@ -16,6 +20,9 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
   text,
   onAdvance,
   isChoiceActive,
+  choices,
+  onSelectChoice,
+  playerPA = 100,
 }) => {
   const [prevText, setPrevText] = useState(text);
   const [displayedText, setDisplayedText] = useState('');
@@ -98,6 +105,35 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
       <div className={`mt-1.5 min-h-[55px] text-slate-100 text-sm leading-relaxed ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
         {displayedText}
       </div>
+
+      {/* Choice Buttons rendered inline inside dialogue box */}
+      {isChoiceActive && !isTyping && choices && onSelectChoice && (
+        <div className="mt-4 flex flex-col gap-2 w-full pointer-events-auto">
+          {choices.map((choice, index) => {
+            const hasEnoughPA = playerPA >= choice.costPA;
+            return (
+              <button
+                key={index}
+                disabled={!hasEnoughPA}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectChoice(choice);
+                }}
+                className={`w-full text-left px-4.5 py-3.5 rounded-xl border text-xs font-semibold flex justify-between items-center transition-all ${
+                  hasEnoughPA
+                    ? 'cursor-pointer border-pink-500/25 bg-white/5 hover:bg-pink-500/10 hover:border-pink-500/60 text-slate-100'
+                    : 'cursor-not-allowed border-red-500/15 bg-red-950/10 text-slate-500'
+                }`}
+              >
+                <span>{choice.text}</span>
+                <span className="shrink-0 ml-4 text-[10px] font-bold bg-pink-500/15 text-pink-300 px-2.5 py-0.5 rounded-full border border-pink-500/15">
+                  {choice.costPA > 0 ? `${choice.costPA} PA` : 'Grátis'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Advance Indicator (Blinking Chevron) */}
       {!isTyping && !isChoiceActive && (

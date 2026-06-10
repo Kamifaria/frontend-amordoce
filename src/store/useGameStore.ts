@@ -205,6 +205,10 @@ interface GameState {
   selectEpisode: (episodeId: number) => void;
   unlockEpisode: (episodeId: number) => void;
   unlockCG: (cgId: string) => void;
+
+  // Navigation state & action
+  currentLocationId: 'school' | 'patio';
+  changeLocation: (locationId: 'school' | 'patio') => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -228,12 +232,14 @@ export const useGameStore = create<GameState>((set, get) => ({
     maggie: 0,
     armin: 0,
     alexy: 0,
+    kami: 0,
   },
   isPhoneOpen: false,
   unlockedTips: ['welcome_tip'],
   unlockedEpisodes: [1],
   activeEpisodeId: 1,
   unlockedCGs: [],
+  currentLocationId: 'school',
   activeCall: null,
   focusedCharacter: null,
   chatThreads: [
@@ -269,6 +275,32 @@ export const useGameStore = create<GameState>((set, get) => ({
               text: 'Ainda não decidi, preciso de tempo.',
               nextMessageId: 'maggie_reply_neutral',
               affinityChange: { characterId: 'maggie', amount: 5 }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      characterId: 'kami',
+      characterName: 'Kami',
+      avatarColor: 'from-purple-900 to-black',
+      unread: true,
+      messages: [
+        {
+          id: 'kami_welcome_1',
+          sender: 'kami',
+          text: 'Ei, Veronica. Fiquei sabendo que você é a garota nova. Se estiver de saco cheio do barulho do corredor, me encontra no pátio depois.',
+          timestamp: '15:15',
+          choices: [
+            {
+              text: 'Adorei o silêncio do pátio... e a sua companhia.',
+              nextMessageId: 'kami_reply_flirt',
+              affinityChange: { characterId: 'kami', amount: 15 }
+            },
+            {
+              text: 'O corredor é bem movimentado mesmo, prefiro o pátio.',
+              nextMessageId: 'kami_reply_friendly',
+              affinityChange: { characterId: 'kami', amount: 10 }
             }
           ]
         }
@@ -325,6 +357,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         maggie: 0,
         armin: 0,
         alexy: 0,
+        kami: 0,
       },
       unlockedTips: ['welcome_tip']
     });
@@ -333,6 +366,44 @@ export const useGameStore = create<GameState>((set, get) => ({
   fetchCurrentGameState: async () => {
     set({ isLoading: true, errorMsg: null });
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const isDemo = !token || token === 'demo-token-jwt';
+
+    if (isDemo) {
+      // Local fallback immediately
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('local_game_state') : null;
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const activeNode = mockStory[parsed.currentNodeId];
+          if (activeNode) {
+            set({
+              currentNodeId: parsed.currentNodeId,
+              playerPA: parsed.playerPA,
+              playerGold: parsed.playerGold,
+              affinities: parsed.affinities || get().affinities,
+              unlockedTips: parsed.unlockedTips || get().unlockedTips,
+              unlockedEpisodes: parsed.unlockedEpisodes || get().unlockedEpisodes,
+              activeEpisodeId: parsed.activeEpisodeId || get().activeEpisodeId,
+              unlockedCGs: parsed.unlockedCGs || get().unlockedCGs,
+              currentSpeaker: activeNode.characterName,
+              currentText: activeNode.text,
+              backgroundUrl: activeNode.backgroundUrl,
+              choices: activeNode.choices,
+            });
+            set({ isLoading: false });
+            return;
+          }
+        } catch (e) {
+          console.warn('Erro ao carregar estado local salvo:', e);
+        }
+      }
+
+      if (!get().currentNodeId) {
+        get().initStory(mockStory, 'start');
+      }
+      set({ isLoading: false });
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:4000/player/progress', {
@@ -419,6 +490,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ isLoading: true, errorMsg: null });
     const { currentNodeId, playerPA, storyTree } = get();
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const isDemo = !token || token === 'demo-token-jwt';
 
     // Check cost client-side if a choice is picked
     const currentStoryMap = storyTree['start'] ? storyTree : mockStory;
@@ -432,6 +504,16 @@ export const useGameStore = create<GameState>((set, get) => ({
         get().playSound('choice');
         return;
       }
+    }
+
+    if (isDemo) {
+      set({ isLoading: false });
+      if (choiceIndex !== undefined && selectedChoice) {
+        get().selectChoice(selectedChoice);
+      } else {
+        get().nextNode();
+      }
+      return;
     }
 
     try {
@@ -496,9 +578,17 @@ export const useGameStore = create<GameState>((set, get) => ({
   nextNode: () => {
     const currentStoryMap = get().storyTree['start'] ? get().storyTree : mockStory;
     const currentNode = currentStoryMap[get().currentNodeId];
-    if (!currentNode || currentNode.choices || !currentNode.next) return;
+    if (!currentNode || currentNode.choices || (!currentNode.next && !currentNode.nextLove)) return;
 
-    const nextNodeId = currentNode.next;
+    let nextNodeId = currentNode.next;
+    const speakerKey = currentNode.characterName?.toLowerCase();
+    const affinity = get().affinities[speakerKey] ?? 0;
+
+    if (currentNode.nextLove && currentNode.nextLoveThreshold !== undefined && affinity >= currentNode.nextLoveThreshold) {
+      nextNodeId = currentNode.nextLove;
+    }
+
+    if (!nextNodeId) return;
     const nextNode = currentStoryMap[nextNodeId];
     if (!nextNode) return;
 
@@ -603,8 +693,15 @@ export const useGameStore = create<GameState>((set, get) => ({
   
   changeAffinity: (characterId, amount) => {
     if (amount === 0) return;
+    
+    // Difficult crushes (Castiel and Lysandre) have 50% reduced positive affinity gains
+    let finalAmount = amount;
+    if (amount > 0 && (characterId === 'castiel' || characterId === 'lysandre')) {
+      finalAmount = Math.max(1, Math.round(amount * 0.5));
+    }
+    
     const currentScore = get().affinities[characterId] ?? 0;
-    const newScore = Math.max(-100, Math.min(100, currentScore + amount));
+    const newScore = Math.max(-100, Math.min(100, currentScore + finalAmount));
     const notificationId = Math.random().toString(36).substring(2, 9);
     
     if (amount > 0) {
@@ -788,6 +885,10 @@ export const useGameStore = create<GameState>((set, get) => ({
         replyText = 'Ui, gosta dos rebeldes, né? Hahaha! O Castiel finge que não liga pra ninguém, mas aposto que no fundo ele gostou do seu atrevimento!';
       } else if (choice.nextMessageId === 'maggie_reply_neutral') {
         replyText = 'Justo! O primeiro dia é pra analisar o terreno mesmo. Me conta se algum deles fizer algo interessante!';
+      } else if (choice.nextMessageId === 'kami_reply_flirt') {
+        replyText = 'Hum... você é bem ousada para quem acabou de chegar. Mas não vou fingir que não gostei. Te vejo no pátio amanhã, Veronica.';
+      } else if (choice.nextMessageId === 'kami_reply_friendly') {
+        replyText = 'Entendo. O pátio é o melhor lugar para fugir do barulho dos corredores. Até amanhã.';
       } else if (choice.nextMessageId === 'castiel_reply_yes') {
         replyText = 'Hmph. Pode ser. Quem sabe a gente não se tromba por aí no pátio.';
       } else if (choice.nextMessageId === 'castiel_reply_no') {
@@ -991,5 +1092,36 @@ export const useGameStore = create<GameState>((set, get) => ({
       });
       return { unlockedCGs: nextCGs };
     });
+  },
+
+  changeLocation: (locationId: 'school' | 'patio') => {
+    get().playSound('click');
+    let entryNodeId = 'start';
+    if (locationId === 'patio') {
+      entryNodeId = 'search-courtyard';
+    }
+    const currentStoryMap = get().storyTree['start'] ? get().storyTree : mockStory;
+    const entryNode = currentStoryMap[entryNodeId];
+    if (entryNode) {
+      set({
+        currentLocationId: locationId,
+        currentNodeId: entryNodeId,
+        currentSpeaker: entryNode.characterName,
+        currentText: entryNode.text,
+        backgroundUrl: entryNode.backgroundUrl,
+        choices: entryNode.choices,
+      });
+
+      saveLocalProgress({
+        currentNodeId: entryNodeId,
+        playerPA: get().playerPA,
+        playerGold: get().playerGold,
+        affinities: get().affinities,
+        unlockedTips: get().unlockedTips,
+        unlockedEpisodes: get().unlockedEpisodes,
+        activeEpisodeId: get().activeEpisodeId,
+        unlockedCGs: get().unlockedCGs
+      });
+    }
   },
 }));

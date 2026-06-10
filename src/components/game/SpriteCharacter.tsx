@@ -17,6 +17,7 @@ const CHARACTER_SPRITES: Record<string, string> = {
   remi: '/images/sprites/remi.png',
   harry: '/images/sprites/harry.png',
   maggie: '/images/sprites/maggie.png',
+  kami: '/images/sprites/kami.png',
 };
 
 const POSITION_CLASSES = {
@@ -74,14 +75,61 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
     return null;
   }
 
-  const imageUrl = CHARACTER_SPRITES[characterName.toLowerCase()];
+  const charKey = characterName.toLowerCase();
   const safeExpression = (expression || 'neutro').toLowerCase();
+  let imageUrl = '';
+
+  if (charKey === 'remi') {
+    imageUrl = `/images/sprites/remi_${safeExpression}.png`;
+  } else if (charKey === 'maggie') {
+    imageUrl = `/images/sprites/maggie_${safeExpression}.png`;
+  } else if (charKey === 'kami') {
+    imageUrl = `/images/sprites/kami_${safeExpression}.png`;
+  } else if (charKey === 'castiel') {
+    let exprFile = 'neutro';
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      exprFile = 'bravo';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      exprFile = 'sorrindo';
+    } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
+      exprFile = 'provocando';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      exprFile = 'triste';
+    }
+    imageUrl = `/images/sprites/castiel_${exprFile}.png`;
+  } else if (charKey === 'nathaniel') {
+    let exprFile = 'neutro';
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      exprFile = 'bravo';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      exprFile = 'sorrindo';
+    } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
+      exprFile = 'provocando';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      exprFile = 'triste';
+    }
+    imageUrl = `/images/sprites/nathaniel_${exprFile}.png`;
+  } else if (charKey === 'lysandre') {
+    let exprFile = 'neutro';
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      exprFile = 'bravo';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      exprFile = 'sorrindo';
+    } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
+      exprFile = 'provocando';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      exprFile = 'triste';
+    }
+    imageUrl = `/images/sprites/lysandre_${exprFile}.png`;
+  } else {
+    imageUrl = CHARACTER_SPRITES[charKey];
+  }
   const variantKey = (safeExpression in EXPRESSION_VARIANTS) 
     ? (safeExpression as keyof typeof EXPRESSION_VARIANTS) 
     : 'neutro';
 
   return (
-    <div className={`absolute bottom-0 z-10 flex h-[75%] w-[35%] pointer-events-none ${POSITION_CLASSES[position]}`}>
+    <div className={`absolute bottom-0 z-15 flex h-[60%] w-[35%] pointer-events-none ${POSITION_CLASSES[position]}`}>
       <AnimatePresence mode="wait">
         <motion.div
           key={`${characterName}-${expression}`}
@@ -96,20 +144,17 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
             y: { duration: 0.4 },
             x: { duration: 0.35 }
           }}
-          className="relative h-full w-full max-w-[280px]"
+          className="relative h-full w-full flex items-end justify-center"
         >
           {imageUrl ? (
-            // Custom CSS mask/border for anime otome character overlay
-            <div className="h-full w-full overflow-hidden rounded-t-full border-b-0 border-4 border-pink-500/30 bg-purple-950/20 backdrop-blur-sm shadow-[0_-10px_25px_rgba(219,39,119,0.15)]">
-              <img
-                src={imageUrl}
-                alt={`${characterName} (${expression})`}
-                className="h-full w-full object-cover object-top filter transition-all duration-300"
-              />
-            </div>
+            <img
+              src={imageUrl}
+              alt={`${characterName} (${expression})`}
+              className="h-full w-auto object-contain object-bottom filter transition-all duration-300 drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+            />
           ) : (
             // Silhouette fallback if sprite is missing
-            <div className="flex h-full w-full flex-col items-center justify-end rounded-t-full border-4 border-b-0 border-dashed border-pink-500/20 bg-purple-950/10 p-4">
+            <div className="flex h-[75%] w-full flex-col items-center justify-end rounded-t-full border-4 border-b-0 border-dashed border-pink-500/20 bg-purple-950/10 p-4">
               <div className="text-center font-bold text-pink-400 text-lg uppercase tracking-widest drop-shadow-md">
                 {characterName}
               </div>

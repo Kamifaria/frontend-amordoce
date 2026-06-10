@@ -18,6 +18,9 @@ export interface DialogueNode {
   text: string;
   choices?: Choice[];
   next?: string;
+  nextLove?: string;
+  nextLoveThreshold?: number;
+  cgUrl?: string;
   triggerChatCharacterId?: string;
   triggerChatText?: string;
 }
@@ -71,4 +74,20 @@ export interface ChatThread {
   unread: boolean;
   activeNodeId?: string;
 }
+
+export interface MapLocation {
+  id: 'school' | 'patio';
+  name: string;
+  backgroundUrl: string;
+  entryNodeId: string;
+  residentCharacters: string[];
+}
+
+export interface CGIllustration {
+  id: string;
+  title: string;
+  imageUrl: string;
+  description: string;
+}
+
 

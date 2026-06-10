@@ -18,14 +18,19 @@ import {
   Volume2, 
   VolumeX, 
   Heart,
-  BookOpen
+  BookOpen,
+  Map
 } from 'lucide-react';
 import { PhoneOverlay } from './PhoneOverlay';
+import { MapOverlay } from './MapOverlay';
+import { CGOverlay } from './CGOverlay';
 import { Choice } from '@/shared/types';
 import { mockStory } from '@/mock/storyData';
 
 export const GameScreen: React.FC = () => {
   const router = useRouter();
+  const [isMapOpen, setIsMapOpen] = React.useState(false);
+  const [activeCG, setActiveCG] = React.useState<{ url: string; id: string } | null>(null);
   const {
     currentNodeId,
     playerPA,
@@ -54,6 +59,12 @@ export const GameScreen: React.FC = () => {
 
   const activeNode = storyTree[currentNodeId] || mockStory[currentNodeId];
   const isChoiceActive = !!(choices && choices.length > 0);
+
+  useEffect(() => {
+    if (activeNode && activeNode.cgUrl) {
+      setActiveCG({ url: activeNode.cgUrl, id: activeNode.id });
+    }
+  }, [activeNode]);
 
   const handleAdvance = () => {
     if (isChoiceActive || isLoading) return;
@@ -127,6 +138,15 @@ export const GameScreen: React.FC = () => {
                 <BookOpen size={16} />
               </button>
 
+              {/* Map Button */}
+              <button
+                onClick={() => setIsMapOpen(true)}
+                title="Abrir Mapa"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-emerald-300 hover:text-emerald-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+              >
+                <Map size={16} />
+              </button>
+
               {/* Phone Button */}
               <button
                 onClick={togglePhone}
@@ -173,7 +193,7 @@ export const GameScreen: React.FC = () => {
           <Cenario backgroundUrl={backgroundUrl} />
 
           {/* Sprite Character Overlay */}
-          {activeNode && !backgroundUrl?.toLowerCase().includes('encounter') && !backgroundUrl?.toLowerCase().includes('cg') && (
+          {activeNode && activeNode.characterName && (
             <SpriteCharacter 
               characterName={activeNode.characterName} 
               expression={activeNode.expression}
@@ -187,16 +207,10 @@ export const GameScreen: React.FC = () => {
             text={currentText}
             onAdvance={handleAdvance}
             isChoiceActive={isChoiceActive}
+            choices={choices}
+            onSelectChoice={handleSelectChoice}
+            playerPA={playerPA}
           />
-
-          {/* Decision choices */}
-          {isChoiceActive && choices && (
-            <ChoiceOverlay
-              choices={choices}
-              onSelectChoice={handleSelectChoice}
-              playerPA={playerPA}
-            />
-          )}
 
           {/* Floating PA/Gold Warning Alert Overlay */}
           {errorMsg && (
@@ -213,6 +227,12 @@ export const GameScreen: React.FC = () => {
           )}
           {/* Smartphone Overlay */}
           <PhoneOverlay />
+
+          {/* Map Overlay */}
+          <MapOverlay isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} />
+
+          {/* CG Overlay */}
+          <CGOverlay cgUrl={activeCG?.url || ''} cgId={activeCG?.id || ''} isOpen={!!activeCG} onClose={() => setActiveCG(null)} />
         </GameContainer>
       ) : (
         <div className="flex flex-col items-center gap-4">

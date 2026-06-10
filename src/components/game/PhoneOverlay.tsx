@@ -42,6 +42,7 @@ export const PhoneOverlay: React.FC = () => {
     { id: 'remi', name: 'Remi', avatarColor: 'from-violet-600 to-slate-900', initial: 'R' },
     { id: 'harry', name: 'Harry', avatarColor: 'from-red-600 to-zinc-900', initial: 'H' },
     { id: 'maggie', name: 'Maggie', avatarColor: 'from-pink-400 to-purple-600', initial: 'M' },
+    { id: 'kami', name: 'Kami', avatarColor: 'from-purple-900 via-indigo-950 to-black', initial: 'K' },
     { id: 'castiel', name: 'Castiel', avatarColor: 'from-red-500 to-rose-600', initial: 'C' },
     { id: 'lysandre', name: 'Lysandre', avatarColor: 'from-emerald-500 to-teal-600', initial: 'L' },
     { id: 'nathaniel', name: 'Nathaniel', avatarColor: 'from-amber-400 to-yellow-500', initial: 'N' },
@@ -70,6 +71,11 @@ export const PhoneOverlay: React.FC = () => {
       id: 'maggie_likes',
       title: 'Energia da Maggie',
       content: 'Maggie é sua melhor amiga caótica no clube de artes. Apoie as ideias artísticas excêntricas dela para mantê-la animada!',
+    },
+    {
+      id: 'kami_likes',
+      title: 'Manias da Kami',
+      content: 'Kami é reservada e alternativa. Ela gosta de silêncio, música grunge/gótica e de pessoas autênticas. Não seja chata ou submissa com ela!',
     },
     {
       id: 'castiel_likes',
@@ -104,6 +110,11 @@ export const PhoneOverlay: React.FC = () => {
       if (affinity >= 50) return 'AMIGA! Você não sabe o que eu pintei! Vem voando para o clube de artes agora, precisamos fofocar e planejar sua conquista!';
       if (affinity >= 10) return 'Oii! Estou cheia de purpurina e ideias malucas! Como está indo o seu dia escolar?';
       return 'Oi! Estou no meio de uma colagem caótica agora, te ligo depois!';
+    }
+    if (characterId === 'kami') {
+      if (affinity >= 50) return 'Oi... Hm, que bom que ligou. Eu estava ouvindo um som no pátio e pensando se você viria me ver hoje. Quer dar uma volta depois da aula?';
+      if (affinity >= 10) return 'Oi. O que foi? O pátio está silencioso hoje... Se quiser fugir da bagunça, pode vir aqui.';
+      return 'O que foi? Estou no meio de uma música agora, não posso falar.';
     }
     if (characterId === 'castiel') {
       if (affinity >= 50) return 'Oi... O que foi? Estava pensando em você agora mesmo. Quer dar uma volta depois da aula?';
@@ -176,9 +187,18 @@ export const PhoneOverlay: React.FC = () => {
                   <div className={`w-24 h-24 rounded-full bg-gradient-to-tr ${currentCharacter?.avatarColor || 'from-purple-500 to-indigo-600'} flex items-center justify-center text-4xl font-extrabold text-white shadow-xl shadow-purple-950/40 border border-white/10 mb-4 mx-auto`}>
                     {currentCharacter?.initial}
                   </div>
-                  <h2 className="text-xl font-bold text-slate-200">{currentCharacter?.name}</h2>
+                  <h2 className="text-xl font-bold text-slate-200 flex items-center justify-center gap-1">
+                    {currentCharacter?.name}
+                    {activeCall.status === 'connected' && currentAffinity >= 50 && (
+                      <Heart size={18} className="text-pink-500 fill-pink-500 animate-pulse" />
+                    )}
+                  </h2>
                   <p className="text-xs text-purple-400 font-semibold tracking-widest uppercase mt-1">
-                    {activeCall.status === 'ringing' ? 'Chamando...' : 'Chamada Conectada'}
+                    {activeCall.status === 'ringing'
+                      ? 'Chamando...'
+                      : currentAffinity >= 50
+                      ? 'Ligação Amorosa ❤️'
+                      : 'Ligação de Amizade 💬'}
                   </p>
                 </div>
 
