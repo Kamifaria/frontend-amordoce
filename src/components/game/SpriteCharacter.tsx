@@ -79,50 +79,90 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
   const safeExpression = (expression || 'neutro').toLowerCase();
   let imageUrl = '';
 
-  if (charKey === 'remi') {
-    imageUrl = `/images/sprites/remi_${safeExpression}.png`;
-  } else if (charKey === 'maggie') {
-    imageUrl = `/images/sprites/maggie_${safeExpression}.png`;
-  } else if (charKey === 'kami') {
-    imageUrl = `/images/sprites/kami_${safeExpression}.png`;
-  } else if (charKey === 'castiel') {
-    let exprFile = 'neutro';
+  if (charKey === 'castiel') {
     if (safeExpression === 'bravo' || safeExpression === 'angry') {
-      exprFile = 'bravo';
+      imageUrl = '/images/sprites/castiel_bravo.png';
     } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
-      exprFile = 'sorrindo';
+      imageUrl = '/images/sprites/castiel_sorrindo.png';
     } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
-      exprFile = 'provocando';
+      imageUrl = '/images/sprites/castiel_sorriso_pilantra.png';
     } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
-      exprFile = 'triste';
+      imageUrl = '/images/sprites/castiel_triste.png';
+    } else {
+      imageUrl = '/images/sprites/castiel.png';
     }
-    imageUrl = `/images/sprites/castiel_${exprFile}.png`;
   } else if (charKey === 'nathaniel') {
-    let exprFile = 'neutro';
     if (safeExpression === 'bravo' || safeExpression === 'angry') {
-      exprFile = 'bravo';
+      imageUrl = '/images/sprites/nathaniel_bravo.png';
     } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
-      exprFile = 'sorrindo';
+      imageUrl = '/images/sprites/nathaniel_sorrindo.png';
     } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
-      exprFile = 'provocando';
+      imageUrl = '/images/sprites/nathaniel_sorriso_pilantra.png';
     } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
-      exprFile = 'triste';
+      imageUrl = '/images/sprites/nathaniel_triste.png';
+    } else {
+      imageUrl = '/images/sprites/nathaniel.png';
     }
-    imageUrl = `/images/sprites/nathaniel_${exprFile}.png`;
   } else if (charKey === 'lysandre') {
-    let exprFile = 'neutro';
     if (safeExpression === 'bravo' || safeExpression === 'angry') {
-      exprFile = 'bravo';
+      imageUrl = '/images/sprites/lysandre_bravo.png';
     } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
-      exprFile = 'sorrindo';
+      imageUrl = '/images/sprites/lysandre_sorrindo.png';
     } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
-      exprFile = 'provocando';
+      imageUrl = '/images/sprites/lysandre_sorriso_pilantra.png';
     } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
-      exprFile = 'triste';
+      imageUrl = '/images/sprites/lysandre_triste.png';
+    } else {
+      imageUrl = '/images/sprites/lysandre.png';
     }
-    imageUrl = `/images/sprites/lysandre_${exprFile}.png`;
+  } else if (charKey === 'remi') {
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      imageUrl = '/images/sprites/remi_bravo.png';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      imageUrl = '/images/sprites/remi2sorrindo.png';
+    } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
+      imageUrl = '/images/sprites/remi2pilantra.png';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      imageUrl = '/images/sprites/remi2triste.png';
+    } else {
+      imageUrl = '/images/sprites/remi.png';
+    }
+  } else if (charKey === 'harry') {
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      imageUrl = '/images/sprites/harry_bravo.png';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      imageUrl = '/images/sprites/harry_sorrindo.png';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      imageUrl = '/images/sprites/Harry_timido.png';
+    } else {
+      imageUrl = '/images/sprites/harry.png';
+    }
+  } else if (charKey === 'maggie') {
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      imageUrl = '/images/sprites/maggie_brava.png';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      imageUrl = '/images/sprites/maggie_sorrindo.png';
+    } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
+      imageUrl = '/images/sprites/maggie_sorriso_pilantra.png';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      imageUrl = '/images/sprites/maggie_neutro.png';
+    } else {
+      imageUrl = '/images/sprites/maggie.png';
+    }
+  } else if (charKey === 'kami') {
+    if (safeExpression === 'bravo' || safeExpression === 'angry') {
+      imageUrl = '/images/sprites/kami_brava.png';
+    } else if (safeExpression === 'sorrindo' || safeExpression === 'happy' || safeExpression === 'smiling') {
+      imageUrl = '/images/sprites/kami_sorriso.png';
+    } else if (safeExpression === 'provocando' || safeExpression === 'sly' || safeExpression === 'smirk' || safeExpression === 'smirking') {
+      imageUrl = '/images/sprites/kami_sorriso_pilantra.png';
+    } else if (safeExpression === 'triste' || safeExpression === 'sad' || safeExpression === 'crying') {
+      imageUrl = '/images/sprites/kami_triste.png';
+    } else {
+      imageUrl = '/images/sprites/kami.png';
+    }
   } else {
-    imageUrl = CHARACTER_SPRITES[charKey];
+    imageUrl = CHARACTER_SPRITES[charKey] || '';
   }
   const variantKey = (safeExpression in EXPRESSION_VARIANTS) 
     ? (safeExpression as keyof typeof EXPRESSION_VARIANTS) 

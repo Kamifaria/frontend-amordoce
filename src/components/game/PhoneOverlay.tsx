@@ -28,7 +28,8 @@ export const PhoneOverlay: React.FC = () => {
     unlockedTips,
     isMuted,
     toggleMute,
-    chatThreads
+    chatThreads,
+    cluesFound
   } = useGameStore();
 
   const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips' | 'chat'>('home');
@@ -383,8 +384,33 @@ export const PhoneOverlay: React.FC = () => {
                       <h2 className="text-lg font-bold text-slate-200">Guia LoveTips</h2>
                     </div>
 
+                    {/* Clues section */}
+                    <div className="mb-4 bg-purple-950/20 border border-purple-500/20 rounded-2xl p-3 text-left">
+                      <h3 className="font-bold text-xs text-pink-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                        🔍 Inventário de Pistas
+                      </h3>
+                      {cluesFound.length === 0 ? (
+                        <p className="text-[10px] text-slate-400 italic">Nenhuma pista coletada ainda. Explore a escola!</p>
+                      ) : (
+                        <div className="flex flex-col gap-1.5">
+                          {cluesFound.includes('chave_pequena') && (
+                            <div className="text-[11px] text-slate-200 bg-white/5 p-2 rounded-xl border border-white/5 flex justify-between items-center">
+                              <span>🔑 Chave Pequena (Quadra)</span>
+                              <span className="text-[8px] text-emerald-400 font-bold">Coletado</span>
+                            </div>
+                          )}
+                          {cluesFound.includes('gabarito_rasgado') && (
+                            <div className="text-[11px] text-slate-200 bg-white/5 p-2 rounded-xl border border-white/5 flex justify-between items-center">
+                              <span>📄 Gabarito Rasgado (Galpão)</span>
+                              <span className="text-[8px] text-emerald-400 font-bold">Coletado</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Tips scroll list */}
-                    <div className="flex flex-col gap-4 overflow-y-auto max-h-[460px] pr-1">
+                    <div className="flex flex-col gap-4 overflow-y-auto max-h-[260px] pr-1">
                       {datingTips.map((tip) => {
                         const isUnlocked = unlockedTips.includes(tip.id);
                         return (

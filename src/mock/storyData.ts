@@ -43,13 +43,19 @@ export const mockStory: Record<string, DialogueNode> = {
         text: '"Isso realmente importa tanto assim? Talvez assinar logo poupe o tempo de todo mundo."',
         nextNodeId: 'confronto-nathaniel-path',
         costPA: 10,
-        affinityChange: { characterId: 'nathaniel', amount: 10 } // Reduced positive affinity gain (difficult crush)
+        affinityChanges: [
+          { characterId: 'nathaniel', amount: 15 },
+          { characterId: 'castiel', amount: -10 }
+        ]
       },
       {
         text: '"Algumas regras parecem apenas burocracia desnecessária, não acham?"',
         nextNodeId: 'confronto-castiel-path',
         costPA: 10,
-        affinityChange: { characterId: 'castiel', amount: 10 } // Reduced positive affinity gain (difficult crush)
+        affinityChanges: [
+          { characterId: 'castiel', amount: 15 },
+          { characterId: 'nathaniel', amount: -10 }
+        ]
       },
       {
         text: '"Se vocês continuarem gritando aqui, a Diretora vai ouvir sem precisar de relatórios."',
@@ -126,19 +132,19 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Bonjour, chérie. Eu vi o pequeno alvoroço no corredor... Mas esqueça aqueles rapazes barulhentos. Gostaria de saber o que o destino reserva para o seu primeiro dia? As cartas de tarô nunca mentem.',
     choices: [
       {
-        text: 'Eu adoraria uma leitura de cartas, Remi. (Doce/Tímida)',
+        text: 'Eu adoraria uma leitura de cartas, Remi.',
         nextNodeId: 'remi-tarot-lovers',
+        costPA: 10,
+        affinityChange: { characterId: 'remi', amount: 15 }
+      },
+      {
+        text: 'Desde que a carta revele que teremos um futuro juntos...',
+        nextNodeId: 'remi-tarot-devil',
         costPA: 10,
         affinityChange: { characterId: 'remi', amount: 20 }
       },
       {
-        text: 'Desde que a carta revele que teremos um futuro juntos... (Ousada/Irônica)',
-        nextNodeId: 'remi-tarot-devil',
-        costPA: 10,
-        affinityChange: { characterId: 'remi', amount: 25 }
-      },
-      {
-        text: 'Não acredito em superstições. Tenho mais o que fazer. (Defensiva/Grossa)',
+        text: 'Não acredito em superstições. Tenho mais o que fazer.',
         nextNodeId: 'remi-tarot-tower',
         costPA: 10,
         affinityChange: { characterId: 'remi', amount: -15 }
@@ -192,19 +198,19 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'E aí, novata. Curtiu o riff de guitarra que eu estava ensaiando ou veio me mandar parar igual ao Nathaniel?',
     choices: [
       {
-        text: 'Eu achei lindo... Você toca com muita paixão. (Doce/Tímida)',
+        text: 'Eu achei lindo... Você toca com muita paixão.',
         nextNodeId: 'harry-guitar-nice',
         costPA: 10,
         affinityChange: { characterId: 'harry', amount: 15 }
       },
       {
-        text: 'Toca bem, mas aposto que eu consigo solar melhor que você. (Ousada/Irônica)',
+        text: 'Toca bem, mas aposto que eu consigo solar melhor que você.',
         nextNodeId: 'harry-guitar-bold',
         costPA: 10,
-        affinityChange: { characterId: 'harry', amount: 25 }
+        affinityChange: { characterId: 'harry', amount: 20 }
       },
       {
-        text: 'O barulho é legal, mas bem que podia tocar longe das salas de aula. (Defensiva/Grossa)',
+        text: 'O barulho é legal, mas bem que podia tocar longe das salas de aula.',
         nextNodeId: 'harry-guitar-rude',
         costPA: 10,
         affinityChange: { characterId: 'harry', amount: -15 }
@@ -261,13 +267,13 @@ export const mockStory: Record<string, DialogueNode> = {
         text: '"Uma colagem com tantas cores... É um caos bem planejado, eu diria."',
         nextNodeId: 'maggie-nice',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 20 }
+        affinityChange: { characterId: 'maggie', amount: 15 }
       },
       {
         text: '"Se isso for me deixar suja de tinta dos pés à cabeça, eu aceito o desafio."',
         nextNodeId: 'maggie-bold',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 15 }
+        affinityChange: { characterId: 'maggie', amount: 20 }
       },
       {
         text: '"Esse lugar parece precisar de uma boa organização antes de qualquer pintura."',
@@ -325,13 +331,13 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Ah, com licença... Eu realmente não consigo encontrar meu bloco de notas de couro. Tenho certeza de que o perdi em algum lugar hoje... Você poderia me ajudar?',
     choices: [
       {
-        text: 'Não se preocupe, eu vou te ajudar a procurar agora mesmo! (Doce/Tímida)',
+        text: 'Não se preocupe, eu vou te ajudar a procurar agora mesmo!',
         nextNodeId: 'quest-choose-location',
         costPA: 10,
         affinityChange: { characterId: 'lysandre', amount: 15 }
       },
       {
-        text: 'De novo, Lysandre? Você precisa de um chaveiro ou GPS para as suas coisas... (Ousada/Irônica)',
+        text: 'De novo, Lysandre? Você precisa de um chaveiro ou GPS para as suas coisas...',
         nextNodeId: 'quest-choose-location',
         costPA: 10,
         affinityChange: { characterId: 'lysandre', amount: 20 }
@@ -385,13 +391,13 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Ah, olá, Veronica! Procurando alguma coisa na sala a essa hora?',
     choices: [
       {
-        text: 'Sim, o Lysandre perdeu o bloco de notas dele. Viu algo? (Doce/Tímida)',
+        text: 'Sim, o Lysandre perdeu o bloco de notas dele. Viu algo?',
         nextNodeId: 'nathaniel-classroom-help',
         costPA: 10,
         affinityChange: { characterId: 'nathaniel', amount: 15 }
       },
       {
-        text: 'Estou investigando um mistério... Quer ser meu cúmplice? (Ousada/Irônica)',
+        text: 'Estou investigando um mistério... Quer ser meu cúmplice?',
         nextNodeId: 'nathaniel-classroom-tease',
         costPA: 10,
         affinityChange: { characterId: 'nathaniel', amount: 20 }
@@ -434,13 +440,13 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Bonjour, chérie. O destino sussurrou que você viria me encontrar entre os livros. Ou está apenas procurando um lugar tranquilo para nós dois?',
     choices: [
       {
-        text: 'Estou procurando o caderno de couro do Lysandre. Viu por aí? (Doce/Tímida)',
+        text: 'Estou procurando o caderno de couro do Lysandre. Viu por aí?',
         nextNodeId: 'remi-library-help',
         costPA: 10,
         affinityChange: { characterId: 'remi', amount: 15 }
       },
       {
-        text: 'Vim ver se suas cartas conseguem adivinhar o que eu perdi. (Ousada/Irônica)',
+        text: 'Vim ver se suas cartas conseguem adivinhar o que eu perdi.',
         nextNodeId: 'remi-library-tease',
         costPA: 10,
         affinityChange: { characterId: 'remi', amount: 20 }
@@ -538,18 +544,19 @@ export const mockStory: Record<string, DialogueNode> = {
         text: '"Achei o visual das mechas incrível, combina com esse pátio."',
         nextNodeId: 'kami-courtyard-nice',
         costPA: 10,
-        affinityChange: { characterId: 'kami', amount: 10 }
+        affinityChange: { characterId: 'kami', amount: 15 }
       },
       {
         text: '"Só estava me perguntando se o livro é tão interessante quanto parece."',
         nextNodeId: 'kami-courtyard-intrigue',
         costPA: 10,
-        affinityChange: { characterId: 'kami', amount: 15 }
+        affinityChange: { characterId: 'kami', amount: 20 }
       },
       {
         text: '"Desculpe incomodar. Vou procurar o caderno do Lysandre em outro lugar."',
         nextNodeId: 'quest-choose-location-3',
-        costPA: 5
+        costPA: 5,
+        affinityChange: { characterId: 'kami', amount: -10 }
       }
     ]
   },
@@ -660,13 +667,13 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Oiii! Voltou para pintar comigo? O painel ainda tem espaço para cor!',
     choices: [
       {
-        text: 'Procuramos um bloco de notas de couro preto do Lysandre. Viu? (Doce/Tímida)',
+        text: 'Procuramos um bloco de notas de couro preto do Lysandre. Viu?',
         nextNodeId: 'maggie-art-notebook',
         costPA: 10,
         affinityChange: { characterId: 'maggie', amount: 15 }
       },
       {
-        text: 'Vim conferir se você não usou o caderno dele para limpar tinta! (Ousada/Irônica)',
+        text: 'Vim conferir se você não usou o caderno dele para limpar tinta!',
         nextNodeId: 'maggie-art-tease',
         costPA: 10,
         affinityChange: { characterId: 'maggie', amount: 20 }
@@ -709,13 +716,13 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Ah, olá... Você conseguiu encontrar alguma pista do meu bloco?',
     choices: [
       {
-        text: 'Sim! Encontrei na sala de artes com a Maggie. Aqui está! (Doce/Tímida)',
+        text: 'Sim! Encontrei na sala de artes com a Maggie. Aqui está!',
         nextNodeId: 'lysandre-happy-end',
         costPA: 10,
         affinityChange: { characterId: 'lysandre', amount: 30 }
       },
       {
-        text: 'Achei! Mas só entrego se você ler um dos poemas dele para mim! (Ousada/Irônica)',
+        text: 'Achei! Mas só entrego se você ler um dos poemas dele para mim!',
         nextNodeId: 'lysandre-poetic-end',
         costPA: 10,
         affinityChange: { characterId: 'lysandre', amount: 40 }
@@ -900,13 +907,19 @@ export const mockStory: Record<string, DialogueNode> = {
         text: 'Clube de Artes: "Vou ficar com você, Maggie! Arte é tudo!"',
         nextNodeId: 'ep2_maggie_path',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 20 }
+        affinityChanges: [
+          { characterId: 'maggie', amount: 15 },
+          { characterId: 'harry', amount: -10 }
+        ]
       },
       {
         text: 'Clube de Música: "Quero ver a guitarra do Harry em ação..."',
         nextNodeId: 'ep2_harry_path',
         costPA: 10,
-        affinityChange: { characterId: 'harry', amount: 20 }
+        affinityChanges: [
+          { characterId: 'harry', amount: 15 },
+          { characterId: 'maggie', amount: -10 }
+        ]
       }
     ]
   },
@@ -960,13 +973,19 @@ export const mockStory: Record<string, DialogueNode> = {
         text: 'Ajudar Nathaniel: "Vou procurar perto das salas de aula!"',
         nextNodeId: 'ep3_nathaniel_path',
         costPA: 10,
-        affinityChange: { characterId: 'nathaniel', amount: 20 }
+        affinityChanges: [
+          { characterId: 'nathaniel', amount: 15 },
+          { characterId: 'castiel', amount: -10 }
+        ]
       },
       {
         text: 'Ajudar Castiel: "O cachorro parece feliz livre, deixa ele correr!"',
         nextNodeId: 'ep3_castiel_path',
         costPA: 10,
-        affinityChange: { characterId: 'castiel', amount: 20 }
+        affinityChanges: [
+          { characterId: 'castiel', amount: 15 },
+          { characterId: 'nathaniel', amount: -10 }
+        ]
       }
     ]
   },
@@ -995,6 +1014,99 @@ export const mockStory: Record<string, DialogueNode> = {
     characterName: 'Narrador',
     backgroundUrl: 'patio',
     text: 'Você completou a demonstração do Episódio 3! O cachorro foi resgatado com sucesso.',
+    next: 'demo-end-loop'
+  },
+  'search-quadra': {
+    id: 'search-quadra',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio', // quadra fallback
+    text: 'A quadra de esportes está ensolarada. Lysandre está na arquibancada. No chão da quadra, você nota uma pequena chave brilhando.',
+    choices: [
+      { text: 'Pegar a chave misteriosa', nextNodeId: 'find-key-quadra', costPA: 10 },
+      { text: 'Aproximar-se de Lysandre', nextNodeId: 'lysandre-lost-notebook', costPA: 0 }
+    ]
+  },
+  'find-key-quadra': {
+    id: 'find-key-quadra',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio',
+    text: 'Você pegou a Chave Pequena! Talvez ela abra algum armário importante.',
+    next: 'search-quadra-after-clue'
+  },
+  'search-quadra-after-clue': {
+    id: 'search-quadra-after-clue',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio',
+    text: 'Lysandre continua aqui na arquibancada.',
+    choices: [
+      { text: 'Falar com Lysandre', nextNodeId: 'lysandre-lost-notebook', costPA: 0 }
+    ]
+  },
+  'search-galpao': {
+    id: 'search-galpao',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_artes',
+    text: 'O galpão de artes está cheio de cores. Maggie está limpando uma tela. Próximo à mesa, há um pedaço de papel rasgado no lixo.',
+    choices: [
+      { text: 'Examinar o papel no lixo', nextNodeId: 'find-paper-galpao', costPA: 10 },
+      { text: 'Falar com Maggie', nextNodeId: 'maggie-start', costPA: 0 }
+    ]
+  },
+  'find-paper-galpao': {
+    id: 'find-paper-galpao',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_artes',
+    text: 'Você pegou o Gabarito Rasgado! Parece que alguém jogou fora as respostas da prova.',
+    next: 'search-galpao-after-clue'
+  },
+  'search-galpao-after-clue': {
+    id: 'search-galpao-after-clue',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_artes',
+    text: 'Maggie continua arrumando os cavaletes.',
+    choices: [
+      { text: 'Falar com Maggie', nextNodeId: 'maggie-start', costPA: 0 }
+    ]
+  },
+  'search-cinema': {
+    id: 'search-cinema',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_aula',
+    text: 'A sala de cinema está escura e confortável. Você vê seu pretendente acenando para você na última fileira.',
+    choices: [
+      { text: 'Ir se sentar para o encontro', nextNodeId: 'cinema-date-start', costPA: 0 }
+    ]
+  },
+  'cinema-date-start': {
+    id: 'cinema-date-start',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_aula',
+    text: 'Vocês compram pipoca e começam a assistir ao filme. No meio da sessão, vocês se aproximam bastante...',
+    next: 'cinema-date-end'
+  },
+  'cinema-date-end': {
+    id: 'cinema-date-end',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_aula',
+    text: 'O encontro no cinema foi maravilhoso! Você sente que a afinidade de vocês cresceu muito.',
     next: 'demo-end-loop'
   }
 };

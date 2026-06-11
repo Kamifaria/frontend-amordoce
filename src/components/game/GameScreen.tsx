@@ -24,6 +24,7 @@ import {
 import { PhoneOverlay } from './PhoneOverlay';
 import { MapOverlay } from './MapOverlay';
 import { CGOverlay } from './CGOverlay';
+import { EpisodeFinishedOverlay } from './EpisodeFinishedOverlay';
 import { Choice } from '@/shared/types';
 import { mockStory } from '@/mock/storyData';
 
@@ -49,7 +50,8 @@ export const GameScreen: React.FC = () => {
     isMuted,
     toggleMute,
     affinityNotifications,
-    initStory
+    initStory,
+    storyStage
   } = useGameStore();
 
   // Load game state on mount
@@ -138,23 +140,27 @@ export const GameScreen: React.FC = () => {
                 <BookOpen size={16} />
               </button>
 
-              {/* Map Button */}
-              <button
-                onClick={() => setIsMapOpen(true)}
-                title="Abrir Mapa"
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-emerald-300 hover:text-emerald-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
-              >
-                <Map size={16} />
-              </button>
+              {storyStage !== 'INTRO' && (
+                <>
+                  {/* Map Button */}
+                  <button
+                    onClick={() => setIsMapOpen(true)}
+                    title="Abrir Mapa"
+                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-emerald-300 hover:text-emerald-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+                  >
+                    <Map size={16} />
+                  </button>
 
-              {/* Phone Button */}
-              <button
-                onClick={togglePhone}
-                title="Abrir Celular"
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-md active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
-              >
-                <Smartphone size={16} />
-              </button>
+                  {/* Phone Button */}
+                  <button
+                    onClick={togglePhone}
+                    title="Abrir Celular"
+                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-md active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
+                  >
+                    <Smartphone size={16} />
+                  </button>
+                </>
+              )}
 
               {/* Logout Button */}
               <button
@@ -192,25 +198,34 @@ export const GameScreen: React.FC = () => {
           {/* Background Scene */}
           <Cenario backgroundUrl={backgroundUrl} />
 
-          {/* Sprite Character Overlay */}
-          {activeNode && activeNode.characterName && (
-            <SpriteCharacter 
-              characterName={activeNode.characterName} 
-              expression={activeNode.expression}
-              position="centro"
+          {currentNodeId === 'demo-end-loop' ? (
+            <EpisodeFinishedOverlay 
+              onRestart={handleRestart}
+              onOpenPhone={togglePhone}
             />
-          )}
+          ) : (
+            <>
+              {/* Sprite Character Overlay */}
+              {activeNode && activeNode.characterName && (
+                <SpriteCharacter 
+                  characterName={activeNode.characterName} 
+                  expression={activeNode.expression}
+                  position="centro"
+                />
+              )}
 
-          {/* Dialogue Box */}
-          <DialogueBox
-            speakerName={currentSpeaker}
-            text={currentText}
-            onAdvance={handleAdvance}
-            isChoiceActive={isChoiceActive}
-            choices={choices}
-            onSelectChoice={handleSelectChoice}
-            playerPA={playerPA}
-          />
+              {/* Dialogue Box */}
+              <DialogueBox
+                speakerName={currentSpeaker}
+                text={currentText}
+                onAdvance={handleAdvance}
+                isChoiceActive={isChoiceActive}
+                choices={choices}
+                onSelectChoice={handleSelectChoice}
+                playerPA={playerPA}
+              />
+            </>
+          )}
 
           {/* Floating PA/Gold Warning Alert Overlay */}
           {errorMsg && (

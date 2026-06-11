@@ -54,8 +54,9 @@ export const TopLoginBar: React.FC<TopLoginBarProps> = ({ onShowRegister }) => {
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 text-white">
         
         {/* Left Side Message */}
-        <div className="hidden lg:block text-xs font-bold tracking-wide uppercase select-none drop-shadow-sm">
-          Acesse sua conta Sweet Amoris
+        <div className="hidden lg:block text-xs font-bold tracking-wide uppercase select-none drop-shadow-sm flex items-center gap-2">
+          <img src="/images/logo_veronica.png" alt="Cupcake Logo" className="h-6 w-auto inline-block mr-1 rounded" />
+          Acesse sua conta do Amor Doce da Veronica
         </div>
 
         {/* Center/Right Form Container */}

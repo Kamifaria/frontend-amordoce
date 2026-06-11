@@ -12,18 +12,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onPlayClick }) => {
     <div className="flex flex-col gap-6 max-w-xl text-white select-none">
       
       {/* Intro Subtitle badge */}
-      <div className="inline-flex self-start items-center gap-1.5 px-3 py-1 bg-pink-500/25 border border-pink-400/30 rounded-full text-[10px] font-bold tracking-widest uppercase text-pink-300">
-        ✨ Romance Virtual Oficial
+      <div className="inline-flex self-start items-center gap-1.5 px-3 py-1 bg-purple-500/25 border border-purple-400/30 rounded-full text-[10px] font-bold tracking-widest uppercase text-purple-300">
+        ✨ Romance Virtual da Veronica
       </div>
 
       {/* Main Title heading */}
-      <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-white via-pink-100 to-pink-200 bg-clip-text text-transparent drop-shadow-md">
-        Crie a sua própria aventura na escola Sweet Amoris...
+      <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-white via-purple-100 to-pink-200 bg-clip-text text-transparent drop-shadow-md">
+        Crie a sua própria aventura no Amor Doce da Veronica!
       </h1>
 
       {/* Body text paragraph */}
       <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-medium max-w-lg">
-        Conheça garotos incríveis, faça amizades, mude o rumo da história com suas escolhas e viva um romance escolar inesquecível!
+        Conheça garotos incríveis, faça amizades, decifre segredos na escola e viva um romance escolar inesquecível com a Veronica!
       </p>
 
       {/* JOGAR CTA Button & Stats counter */}

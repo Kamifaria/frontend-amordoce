@@ -6,6 +6,10 @@ export interface Choice {
     characterId: string;
     amount: number;
   };
+  affinityChanges?: {
+    characterId: string;
+    amount: number;
+  }[];
   focusedCharacter?: string;
 }
 
@@ -75,8 +79,10 @@ export interface ChatThread {
   activeNodeId?: string;
 }
 
+export type StoryStage = 'INTRO' | 'FREE_EXPLORE' | 'MYSTERY_RESOLVED' | 'DATE_CINEMA';
+
 export interface MapLocation {
-  id: 'school' | 'patio';
+  id: string; // e.g., 'school' | 'patio' | 'quadra' | 'galpao' | 'cinema'
   name: string;
   backgroundUrl: string;
   entryNodeId: string;

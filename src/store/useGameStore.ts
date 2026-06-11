@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Choice, DialogueNode, ChatMessage, ChatThread } from '../shared/types';
+import { Choice, DialogueNode, ChatMessage, ChatThread, StoryStage } from '../shared/types';
 import { mockStory } from '../mock/storyData';
 
 // Synthesize sounds using Web Audio API (Zero external asset dependencies!)
@@ -119,6 +119,9 @@ const saveLocalProgress = (stateData: {
   unlockedEpisodes?: number[];
   activeEpisodeId?: number;
   unlockedCGs?: string[];
+  storyStage?: StoryStage;
+  cluesFound?: string[];
+  currentLocationId?: string;
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
@@ -206,9 +209,15 @@ interface GameState {
   unlockEpisode: (episodeId: number) => void;
   unlockCG: (cgId: string) => void;
 
+  // Story stage and clues
+  storyStage: StoryStage;
+  cluesFound: string[];
+  setStoryStage: (stage: StoryStage) => void;
+  collectClue: (clueId: string) => void;
+
   // Navigation state & action
-  currentLocationId: 'school' | 'patio';
-  changeLocation: (locationId: 'school' | 'patio') => void;
+  currentLocationId: string;
+  changeLocation: (locationId: string) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -239,6 +248,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   unlockedEpisodes: [1],
   activeEpisodeId: 1,
   unlockedCGs: [],
+  storyStage: 'INTRO',
+  cluesFound: [],
   currentLocationId: 'school',
   activeCall: null,
   focusedCharacter: null,
@@ -348,6 +359,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentText: startNode.text,
       backgroundUrl: startNode.backgroundUrl,
       choices: startNode.choices,
+      storyStage: 'INTRO',
+      cluesFound: [],
+      currentLocationId: 'school',
       affinities: {
         castiel: 0,
         lysandre: 0,
@@ -385,6 +399,9 @@ export const useGameStore = create<GameState>((set, get) => ({
               unlockedEpisodes: parsed.unlockedEpisodes || get().unlockedEpisodes,
               activeEpisodeId: parsed.activeEpisodeId || get().activeEpisodeId,
               unlockedCGs: parsed.unlockedCGs || get().unlockedCGs,
+              storyStage: parsed.storyStage || 'INTRO',
+              cluesFound: parsed.cluesFound || [],
+              currentLocationId: parsed.currentLocationId || 'school',
               currentSpeaker: activeNode.characterName,
               currentText: activeNode.text,
               backgroundUrl: activeNode.backgroundUrl,
@@ -466,6 +483,9 @@ export const useGameStore = create<GameState>((set, get) => ({
               unlockedEpisodes: parsed.unlockedEpisodes || get().unlockedEpisodes,
               activeEpisodeId: parsed.activeEpisodeId || get().activeEpisodeId,
               unlockedCGs: parsed.unlockedCGs || get().unlockedCGs,
+              storyStage: parsed.storyStage || 'INTRO',
+              cluesFound: parsed.cluesFound || [],
+              currentLocationId: parsed.currentLocationId || 'school',
               currentSpeaker: activeNode.characterName,
               currentText: activeNode.text,
               backgroundUrl: activeNode.backgroundUrl,
@@ -594,12 +614,24 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     get().playSound('click');
 
+    let nextStage = get().storyStage;
+    if (nextNodeId === 'harry-start' && nextStage === 'INTRO') {
+      nextStage = 'FREE_EXPLORE';
+    }
+
+    if (nextNodeId === 'find-key-quadra') {
+      get().collectClue('chave_pequena');
+    } else if (nextNodeId === 'find-paper-galpao') {
+      get().collectClue('gabarito_rasgado');
+    }
+
     set({
       currentNodeId: nextNodeId,
       currentSpeaker: nextNode.characterName,
       currentText: nextNode.text,
       backgroundUrl: nextNode.backgroundUrl,
       choices: nextNode.choices,
+      storyStage: nextStage,
     });
 
     if (nextNode.triggerChatCharacterId && nextNode.triggerChatText) {
@@ -611,7 +643,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       playerPA: get().playerPA,
       playerGold: get().playerGold,
       affinities: get().affinities,
-      unlockedTips: get().unlockedTips
+      unlockedTips: get().unlockedTips,
+      unlockedEpisodes: get().unlockedEpisodes,
+      activeEpisodeId: get().activeEpisodeId,
+      unlockedCGs: get().unlockedCGs,
+      storyStage: nextStage,
+      cluesFound: get().cluesFound,
+      currentLocationId: get().currentLocationId,
     });
   },
 
@@ -633,9 +671,25 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (choice.affinityChange) {
       state.changeAffinity(choice.affinityChange.characterId, choice.affinityChange.amount);
     }
+    if (choice.affinityChanges) {
+      choice.affinityChanges.forEach((change) => {
+        state.changeAffinity(change.characterId, change.amount);
+      });
+    }
 
     if (choice.focusedCharacter !== undefined) {
       set({ focusedCharacter: choice.focusedCharacter });
+    }
+
+    let nextStage = state.storyStage;
+    if (choice.nextNodeId === 'harry-start' && nextStage === 'INTRO') {
+      nextStage = 'FREE_EXPLORE';
+    }
+
+    if (choice.nextNodeId === 'find-key-quadra') {
+      state.collectClue('chave_pequena');
+    } else if (choice.nextNodeId === 'find-paper-galpao') {
+      state.collectClue('gabarito_rasgado');
     }
 
     set({
@@ -645,6 +699,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentText: nextNode.text,
       backgroundUrl: nextNode.backgroundUrl,
       choices: nextNode.choices,
+      storyStage: nextStage,
     });
 
     if (nextNode.triggerChatCharacterId && nextNode.triggerChatText) {
@@ -656,7 +711,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       playerPA: state.playerPA - choice.costPA,
       playerGold: state.playerGold,
       affinities: get().affinities,
-      unlockedTips: get().unlockedTips
+      unlockedTips: get().unlockedTips,
+      unlockedEpisodes: get().unlockedEpisodes,
+      activeEpisodeId: get().activeEpisodeId,
+      unlockedCGs: get().unlockedCGs,
+      storyStage: nextStage,
+      cluesFound: get().cluesFound,
+      currentLocationId: get().currentLocationId,
     });
 
     // Spontaneous incoming call check
@@ -722,6 +783,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       get().removeAffinityNotification(notificationId);
     }, 3000);
 
+    let nextStage = get().storyStage;
+    if (newScore >= 50 && nextStage === 'FREE_EXPLORE') {
+      nextStage = 'DATE_CINEMA';
+    }
+
     set((state) => {
       const nextAffinities = {
         ...state.affinities,
@@ -733,12 +799,19 @@ export const useGameStore = create<GameState>((set, get) => ({
         playerPA: get().playerPA,
         playerGold: get().playerGold,
         affinities: nextAffinities,
-        unlockedTips: updatedTips
+        unlockedTips: updatedTips,
+        unlockedEpisodes: get().unlockedEpisodes,
+        activeEpisodeId: get().activeEpisodeId,
+        unlockedCGs: get().unlockedCGs,
+        storyStage: nextStage,
+        cluesFound: get().cluesFound,
+        currentLocationId: get().currentLocationId,
       });
 
       return {
         affinities: nextAffinities,
         unlockedTips: updatedTips,
+        storyStage: nextStage,
         affinityNotifications: [
           ...state.affinityNotifications,
           { characterId, amount, id: notificationId }
@@ -1094,14 +1167,68 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
 
-  changeLocation: (locationId: 'school' | 'patio') => {
+  setStoryStage: (stage) => {
+    set({ storyStage: stage });
+    saveLocalProgress({
+      currentNodeId: get().currentNodeId,
+      playerPA: get().playerPA,
+      playerGold: get().playerGold,
+      affinities: get().affinities,
+      unlockedTips: get().unlockedTips,
+      unlockedEpisodes: get().unlockedEpisodes,
+      activeEpisodeId: get().activeEpisodeId,
+      unlockedCGs: get().unlockedCGs,
+      storyStage: stage,
+      cluesFound: get().cluesFound,
+      currentLocationId: get().currentLocationId,
+    });
+  },
+
+  collectClue: (clueId) => {
+    set((state) => {
+      const nextClues = state.cluesFound.includes(clueId)
+        ? state.cluesFound
+        : [...state.cluesFound, clueId];
+      saveLocalProgress({
+        currentNodeId: state.currentNodeId,
+        playerPA: state.playerPA,
+        playerGold: state.playerGold,
+        affinities: state.affinities,
+        unlockedTips: state.unlockedTips,
+        unlockedEpisodes: state.unlockedEpisodes,
+        activeEpisodeId: state.activeEpisodeId,
+        unlockedCGs: state.unlockedCGs,
+        storyStage: state.storyStage,
+        cluesFound: nextClues,
+        currentLocationId: state.currentLocationId,
+      });
+      return { cluesFound: nextClues };
+    });
+  },
+
+  changeLocation: (locationId) => {
+    if (get().playerPA < 10) {
+      set({ errorMsg: 'Saldo de PA Insuficiente' });
+      get().playSound('choice');
+      return;
+    }
+
     get().playSound('click');
     let entryNodeId = 'start';
     if (locationId === 'patio') {
       entryNodeId = 'search-courtyard';
+    } else if (locationId === 'quadra') {
+      entryNodeId = 'search-quadra';
+    } else if (locationId === 'galpao') {
+      entryNodeId = 'search-galpao';
+    } else if (locationId === 'cinema') {
+      entryNodeId = 'search-cinema';
     }
+
     const currentStoryMap = get().storyTree['start'] ? get().storyTree : mockStory;
     const entryNode = currentStoryMap[entryNodeId];
+    const nextPA = get().playerPA - 10;
+
     if (entryNode) {
       set({
         currentLocationId: locationId,
@@ -1110,17 +1237,21 @@ export const useGameStore = create<GameState>((set, get) => ({
         currentText: entryNode.text,
         backgroundUrl: entryNode.backgroundUrl,
         choices: entryNode.choices,
+        playerPA: nextPA,
       });
 
       saveLocalProgress({
         currentNodeId: entryNodeId,
-        playerPA: get().playerPA,
+        playerPA: nextPA,
         playerGold: get().playerGold,
         affinities: get().affinities,
         unlockedTips: get().unlockedTips,
         unlockedEpisodes: get().unlockedEpisodes,
         activeEpisodeId: get().activeEpisodeId,
-        unlockedCGs: get().unlockedCGs
+        unlockedCGs: get().unlockedCGs,
+        storyStage: get().storyStage,
+        cluesFound: get().cluesFound,
+        currentLocationId: locationId,
       });
     }
   },
