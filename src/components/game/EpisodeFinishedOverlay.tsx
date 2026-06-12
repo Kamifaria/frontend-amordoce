@@ -15,7 +15,11 @@ export const EpisodeFinishedOverlay: React.FC<EpisodeFinishedOverlayProps> = ({
   onRestart,
   onOpenPhone
 }) => {
-  const { affinities, advance, initStory } = useGameStore();
+  const { affinities, advance, initStory, unlockEpisode, setView } = useGameStore();
+
+  React.useEffect(() => {
+    unlockEpisode(2);
+  }, [unlockEpisode]);
 
   const characterNames: Record<string, string> = {
     nathaniel: 'Nathaniel',
@@ -123,21 +127,28 @@ export const EpisodeFinishedOverlay: React.FC<EpisodeFinishedOverlayProps> = ({
             <ArrowRight size={16} />
           </button>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={onRestart}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#1d173d] hover:bg-[#251e4d] text-purple-200 border border-purple-500/20 font-bold text-xs tracking-wide transition-all cursor-pointer"
+              className="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-[#1d173d] hover:bg-[#251e4d] text-purple-200 border border-purple-500/20 font-bold text-[10px] tracking-wide transition-all cursor-pointer"
             >
-              <RefreshCw size={14} />
-              <span>Jogar de Novo</span>
+              <RefreshCw size={12} />
+              <span>Rejogar</span>
             </button>
 
             <button
               onClick={onOpenPhone}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#1d173d] hover:bg-[#251e4d] text-pink-200 border border-pink-500/20 font-bold text-xs tracking-wide transition-all cursor-pointer"
+              className="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-[#1d173d] hover:bg-[#251e4d] text-pink-200 border border-pink-500/20 font-bold text-[10px] tracking-wide transition-all cursor-pointer"
             >
-              <Smartphone size={14} />
-              <span>Ver SweetChat</span>
+              <Smartphone size={12} />
+              <span>SweetChat</span>
+            </button>
+
+            <button
+              onClick={() => setView('lobby')}
+              className="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-[#1d173d] hover:bg-[#251e4d] text-amber-200 border border-amber-500/20 font-bold text-[10px] tracking-wide transition-all cursor-pointer"
+            >
+              <span>Lobby 🏰</span>
             </button>
           </div>
         </div>

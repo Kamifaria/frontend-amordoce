@@ -11,8 +11,24 @@ interface CGOverlayProps {
   onClose: () => void;
 }
 
+const getBackgroundSrc = (url: string): string => {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('/')) {
+    return url;
+  }
+  const map: Record<string, string> = {
+    'corredor': '/images/backgrounds/corridor.png',
+    'sala_de_aula': '/images/backgrounds/classroom.png',
+    'patio': '/images/backgrounds/courtyard.png',
+    'sala_de_artes': '/images/backgrounds/art_room.png',
+    'remi_encounter': '/images/backgrounds/remi_encounter.png',
+  };
+  return map[url.toLowerCase()] || `/images/backgrounds/${url}.png`;
+};
+
 export const CGOverlay: React.FC<CGOverlayProps> = ({ cgUrl, cgId, isOpen, onClose }) => {
   const unlockCG = useGameStore((state) => state.unlockCG);
+  const backgroundUrl = useGameStore((state) => state.backgroundUrl);
 
   useEffect(() => {
     if (isOpen && cgId) {
@@ -22,10 +38,15 @@ export const CGOverlay: React.FC<CGOverlayProps> = ({ cgUrl, cgId, isOpen, onClo
 
   if (!isOpen) return null;
 
+  const bgSrc = getBackgroundSrc(backgroundUrl);
+
   return (
     <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md select-none animate-fade-in p-4">
       {/* Visual Novel Container Constraint (16:9 ratio) */}
-      <div className="relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden border border-pink-500/50 shadow-[0_0_50px_rgba(219,39,119,0.4)] bg-[#120e24]">
+      <div 
+        className="relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden border border-pink-500/50 shadow-[0_0_50px_rgba(219,39,119,0.4)] bg-[#120e24] bg-cover bg-center"
+        style={bgSrc ? { backgroundImage: `url(${bgSrc})` } : undefined}
+      >
         
         {/* CG Image */}
         <img
@@ -59,3 +80,4 @@ export const CGOverlay: React.FC<CGOverlayProps> = ({ cgUrl, cgId, isOpen, onClo
     </div>
   );
 };
+

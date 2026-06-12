@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Choice, DialogueNode, ChatMessage, ChatThread, StoryStage } from '../shared/types';
+import { Choice, DialogueNode, ChatMessage, ChatThread, StoryStage, EquippedOutfit, Achievement, DailyQuest, SweetGramPost, ScenarioItem } from '../shared/types';
 import { mockStory } from '../mock/storyData';
 
 // Synthesize sounds using Web Audio API (Zero external asset dependencies!)
@@ -122,6 +122,8 @@ const saveLocalProgress = (stateData: {
   storyStage?: StoryStage;
   cluesFound?: string[];
   currentLocationId?: string;
+  lastDailyDraw?: number | null;
+  equippedOutfit?: EquippedOutfit;
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
@@ -218,6 +220,30 @@ interface GameState {
   // Navigation state & action
   currentLocationId: string;
   changeLocation: (locationId: string) => void;
+
+  // Lobby States & Actions
+  currentView: 'lobby' | 'episode';
+  lastDailyDraw: number | null;
+  equippedOutfit: EquippedOutfit;
+  setView: (view: 'lobby' | 'episode') => void;
+  drawTarot: (rewardType: 'PA' | 'Gold', rewardAmount: number) => void;
+  updateOutfit: (outfit: EquippedOutfit) => void;
+
+  // Gameplay Enhancements States
+  achievements: Achievement[];
+  dailyQuests: DailyQuest[];
+  sweetGramPosts: SweetGramPost[];
+  collectedItems: string[];
+  achievementQueue: Achievement[];
+
+  // Gameplay Enhancements Actions
+  unlockAchievement: (id: string) => void;
+  dismissAchievement: () => void;
+  incrementQuestProgress: (id: string, amount: number) => void;
+  claimQuestReward: (id: string) => void;
+  likePost: (postId: string) => void;
+  commentOnPost: (postId: string, commentIndex: number) => void;
+  collectScenarioItem: (item: ScenarioItem) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -253,6 +279,255 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentLocationId: 'school',
   activeCall: null,
   focusedCharacter: null,
+
+  // Lobby States
+  currentView: 'lobby',
+  lastDailyDraw: null,
+  equippedOutfit: {
+    hairstyle: 'long-pink',
+    top: 'school-uniform-top',
+    bottom: 'skirt-pink',
+  },
+
+  setView: (view) => set({ currentView: view }),
+  
+  drawTarot: (rewardType, rewardAmount) => {
+    const nextDraw = Date.now();
+    set((state) => {
+      const updatedPA = state.playerPA + (rewardType === 'PA' ? rewardAmount : 0);
+      const updatedGold = state.playerGold + (rewardType === 'Gold' ? rewardAmount : 0);
+      
+      saveLocalProgress({
+        currentNodeId: state.currentNodeId,
+        playerPA: updatedPA,
+        playerGold: updatedGold,
+        affinities: state.affinities,
+        unlockedTips: state.unlockedTips,
+        unlockedEpisodes: state.unlockedEpisodes,
+        activeEpisodeId: state.activeEpisodeId,
+        unlockedCGs: state.unlockedCGs,
+        storyStage: state.storyStage,
+        cluesFound: state.cluesFound,
+        currentLocationId: state.currentLocationId,
+        lastDailyDraw: nextDraw,
+        equippedOutfit: state.equippedOutfit,
+      });
+
+      return { 
+        playerPA: updatedPA,
+        playerGold: updatedGold,
+        lastDailyDraw: nextDraw 
+      };
+    });
+
+    // Integrated enhancements triggers
+    get().unlockAchievement('tarot_master');
+    get().incrementQuestProgress('tarot_today', 1);
+  },
+
+  updateOutfit: (outfit) => {
+    set({ equippedOutfit: outfit });
+    saveLocalProgress({
+      currentNodeId: get().currentNodeId,
+      playerPA: get().playerPA,
+      playerGold: get().playerGold,
+      affinities: get().affinities,
+      unlockedTips: get().unlockedTips,
+      unlockedEpisodes: get().unlockedEpisodes,
+      activeEpisodeId: get().activeEpisodeId,
+      unlockedCGs: get().unlockedCGs,
+      storyStage: get().storyStage,
+      cluesFound: get().cluesFound,
+      currentLocationId: get().currentLocationId,
+      lastDailyDraw: get().lastDailyDraw,
+      equippedOutfit: outfit,
+    });
+
+    // Integrated enhancements triggers
+    get().unlockAchievement('fashionista');
+    get().incrementQuestProgress('change_style', 1);
+  },
+
+  // Gameplay Enhancements States
+  achievements: [
+    { id: 'crush_castiel', title: 'Guitarrista Rebelde', description: 'Alcance 50% de afinidade com o Castiel', unlocked: false, icon: '🎸' },
+    { id: 'crush_nathaniel', title: 'Estudioso de Ouro', description: 'Alcance 50% de afinidade com o Nathaniel', unlocked: false, icon: '📚' },
+    { id: 'tarot_master', title: 'Destino Traçado', description: 'Realize sua primeira tiragem de tarô com o Remi', unlocked: false, icon: '🔮' },
+    { id: 'fashionista', title: 'Estilo Puro', description: 'Troque de roupa no closet pela primeira vez', unlocked: false, icon: '👚' },
+    { id: 'collector', title: 'Caçadora de Relíquias', description: 'Encontre um item oculto no cenário', unlocked: false, icon: '🔑' },
+  ],
+  dailyQuests: [
+    { id: 'check_in', description: 'Entrar no jogo na Sweet Amoris', target: 1, current: 1, completed: false, rewardType: 'PA', rewardAmount: 20 },
+    { id: 'tarot_today', description: 'Consultar o tarô diário de Remi', target: 1, current: 0, completed: false, rewardType: 'Gold', rewardAmount: 10 },
+    { id: 'change_style', description: 'Mudar de cabelo ou roupa no closet', target: 1, current: 0, completed: false, rewardType: 'PA', rewardAmount: 15 },
+  ],
+  sweetGramPosts: [
+    {
+      id: 'post_castiel_1',
+      characterId: 'castiel',
+      characterName: 'Castiel',
+      avatarColor: 'from-red-500 to-rose-600',
+      imageUrl: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=500&auto=format&fit=crop&q=60',
+      caption: 'Guitarra afinada e cordas novas. O som do ensaio hoje vai ser pesado. 🎸🤘',
+      likes: 142,
+      hasLiked: false,
+      comments: [
+        { id: 'c1', sender: 'Lysandre', text: 'Excelente. O ritmo da nova letra encaixa perfeitamente.' },
+        { id: 'c2', sender: 'Maggie', text: 'Quero ouvir essa logo! Toca Decode! 😍' }
+      ],
+      commentOptions: [
+        { text: 'Aposto que o ensaio vai ser incrível!', affinityChange: 10 },
+        { text: 'Toma cuidado para não fazer barulho demais...', affinityChange: -5 }
+      ]
+    },
+    {
+      id: 'post_nathaniel_1',
+      characterId: 'nathaniel',
+      characterName: 'Nathaniel',
+      avatarColor: 'from-amber-400 to-yellow-500',
+      imageUrl: 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?w=500&auto=format&fit=crop&q=60',
+      caption: 'Um pouco de paz e silêncio na biblioteca para organizar a papelada do grêmio. 📚☕',
+      likes: 98,
+      hasLiked: false,
+      comments: [
+        { id: 'c3', sender: 'Diretora', text: 'Parabéns pela dedicação, Nathaniel.' }
+      ],
+      commentOptions: [
+        { text: 'Se precisar de uma mãozinha, é só chamar!', affinityChange: 10 },
+        { text: 'Organizar papéis parece muito chato.', affinityChange: -5 }
+      ]
+    }
+  ],
+  collectedItems: [],
+  achievementQueue: [],
+
+  // Gameplay Enhancements Actions
+  unlockAchievement: (id) => {
+    set((state) => {
+      const achievements = state.achievements.map((ach) => {
+        if (ach.id === id && !ach.unlocked) {
+          const unlockedAch = { ...ach, unlocked: true, unlockedAt: Date.now() };
+          state.playSound('heart');
+          setTimeout(() => {
+            set((curr) => ({ achievementQueue: [...curr.achievementQueue, unlockedAch] }));
+          }, 100);
+          return unlockedAch;
+        }
+        return ach;
+      });
+      return { achievements };
+    });
+  },
+
+  dismissAchievement: () => {
+    set((state) => ({
+      achievementQueue: state.achievementQueue.slice(1)
+    }));
+  },
+
+  incrementQuestProgress: (id, amount) => {
+    set((state) => {
+      const dailyQuests = state.dailyQuests.map((q) => {
+        if (q.id === id && !q.completed) {
+          const nextVal = Math.min(q.target, q.current + amount);
+          return {
+            ...q,
+            current: nextVal,
+            completed: nextVal >= q.target
+          };
+        }
+        return q;
+      });
+      return { dailyQuests };
+    });
+  },
+
+  claimQuestReward: (id) => {
+    set((state) => {
+      const quest = state.dailyQuests.find(q => q.id === id);
+      if (!quest || !quest.completed) return {};
+
+      if (quest.rewardType === 'PA') {
+        state.addPA(quest.rewardAmount);
+      } else {
+        state.addGold(quest.rewardAmount);
+      }
+
+      const dailyQuests = state.dailyQuests.filter(q => q.id !== id);
+      state.playSound('heart');
+
+      return { dailyQuests };
+    });
+  },
+
+  likePost: (postId) => {
+    set((state) => {
+      const sweetGramPosts = state.sweetGramPosts.map((post) => {
+        if (post.id === postId && !post.hasLiked) {
+          state.playSound('click');
+          state.changeAffinity(post.characterId, 5);
+          return {
+            ...post,
+            hasLiked: true,
+            likes: post.likes + 1
+          };
+        }
+        return post;
+      });
+      return { sweetGramPosts };
+    });
+  },
+
+  commentOnPost: (postId, commentIndex) => {
+    set((state) => {
+      const sweetGramPosts = state.sweetGramPosts.map((post) => {
+        if (post.id === postId && post.commentOptions) {
+          const option = post.commentOptions[commentIndex];
+          state.playSound('choice');
+          state.changeAffinity(post.characterId, option.affinityChange);
+          
+          const newComment = {
+            id: `usr_${Date.now()}`,
+            sender: 'Veronica',
+            text: option.text
+          };
+
+          const { commentOptions, ...rest } = post;
+          return {
+            ...rest,
+            comments: [...post.comments, newComment]
+          };
+        }
+        return post;
+      });
+      return { sweetGramPosts };
+    });
+  },
+
+  collectScenarioItem: (item) => {
+    set((state) => {
+      if (state.collectedItems.includes(item.id)) return {};
+      
+      state.playSound('heart');
+      
+      if (item.rewardType === 'PA' && item.rewardAmount) {
+        state.addPA(item.rewardAmount);
+      } else if (item.rewardType === 'Gold' && item.rewardAmount) {
+        state.addGold(item.rewardAmount);
+      } else if (item.rewardType === 'Clue' && item.clueId) {
+        state.collectClue(item.clueId);
+      }
+
+      setTimeout(() => {
+        get().unlockAchievement('collector');
+      }, 500);
+
+      return {
+        collectedItems: [...state.collectedItems, item.id]
+      };
+    });
+  },
+
   chatThreads: [
     {
       characterId: 'maggie',
@@ -406,6 +681,9 @@ export const useGameStore = create<GameState>((set, get) => ({
               currentText: activeNode.text,
               backgroundUrl: activeNode.backgroundUrl,
               choices: activeNode.choices,
+              currentView: parsed.currentView || get().currentView,
+              lastDailyDraw: parsed.lastDailyDraw || get().lastDailyDraw,
+              equippedOutfit: parsed.equippedOutfit || get().equippedOutfit,
             });
             set({ isLoading: false });
             return;
@@ -490,6 +768,9 @@ export const useGameStore = create<GameState>((set, get) => ({
               currentText: activeNode.text,
               backgroundUrl: activeNode.backgroundUrl,
               choices: activeNode.choices,
+              currentView: parsed.currentView || get().currentView,
+              lastDailyDraw: parsed.lastDailyDraw || get().lastDailyDraw,
+              equippedOutfit: parsed.equippedOutfit || get().equippedOutfit,
             });
             set({ isLoading: false });
             return;
@@ -776,6 +1057,11 @@ export const useGameStore = create<GameState>((set, get) => ({
     const tipId = `${characterId}_likes`;
     if (newScore >= 10 && !updatedTips.includes(tipId)) {
       updatedTips.push(tipId);
+    }
+
+    if (newScore >= 50) {
+      if (characterId === 'castiel') setTimeout(() => get().unlockAchievement('crush_castiel'), 100);
+      if (characterId === 'nathaniel') setTimeout(() => get().unlockAchievement('crush_nathaniel'), 100);
     }
     
     // Auto-remove notification after 3s

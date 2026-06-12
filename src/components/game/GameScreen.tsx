@@ -51,7 +51,8 @@ export const GameScreen: React.FC = () => {
     toggleMute,
     affinityNotifications,
     initStory,
-    storyStage
+    storyStage,
+    setView
   } = useGameStore();
 
   // Load game state on mount
@@ -133,8 +134,8 @@ export const GameScreen: React.FC = () => {
 
               {/* Episodes Button */}
               <button
-                onClick={() => router.push('/game/episodes')}
-                title="Lista de Episódios"
+                onClick={() => setView('lobby')}
+                title="Voltar ao Lobby"
                 className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-pink-300 hover:text-pink-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
               >
                 <BookOpen size={16} />
@@ -195,25 +196,24 @@ export const GameScreen: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Background Scene */}
-          <Cenario backgroundUrl={backgroundUrl} />
+          {/* Background Scene — SpriteCharacter is inside so PNG transparency shows the scene bg */}
+          <Cenario backgroundUrl={backgroundUrl}>
+            {currentNodeId !== 'demo-end-loop' && activeNode && activeNode.characterName && (
+              <SpriteCharacter
+                characterName={activeNode.characterName}
+                expression={activeNode.expression}
+                position="centro"
+              />
+            )}
+          </Cenario>
 
           {currentNodeId === 'demo-end-loop' ? (
-            <EpisodeFinishedOverlay 
+            <EpisodeFinishedOverlay
               onRestart={handleRestart}
               onOpenPhone={togglePhone}
             />
           ) : (
             <>
-              {/* Sprite Character Overlay */}
-              {activeNode && activeNode.characterName && (
-                <SpriteCharacter 
-                  characterName={activeNode.characterName} 
-                  expression={activeNode.expression}
-                  position="centro"
-                />
-              )}
-
               {/* Dialogue Box */}
               <DialogueBox
                 speakerName={currentSpeaker}

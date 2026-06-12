@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useGameStore } from '@/store/useGameStore';
 import { LoveOMeter } from './LoveOMeter';
+import { SweetGramApp } from './SweetGramApp';
 
 export const PhoneOverlay: React.FC = () => {
   const {
@@ -32,7 +33,7 @@ export const PhoneOverlay: React.FC = () => {
     cluesFound
   } = useGameStore();
 
-  const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips' | 'chat'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips' | 'chat' | 'sweetgram'>('home');
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
 
@@ -299,6 +300,27 @@ export const PhoneOverlay: React.FC = () => {
                           <BookOpen className="text-purple-400" size={24} />
                         </div>
                         <span className="text-xs font-semibold tracking-wider">LoveTips</span>
+                      </button>
+
+                      {/* SweetGram App */}
+                      <button 
+                        onClick={() => {
+                          const playSound = useGameStore.getState().playSound;
+                          playSound('click');
+                          setActiveTab('sweetgram');
+                        }}
+                        className="col-span-2 py-3.5 px-6 rounded-3xl bg-gradient-to-r from-pink-500/20 to-purple-600/20 hover:from-pink-500/30 hover:to-purple-600/30 border border-pink-500/10 hover:border-pink-500/30 transition-all flex items-center justify-between text-slate-100 group cursor-pointer shadow-md my-0.5"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-pink-500/15 flex items-center justify-center group-hover:scale-105 transition-transform text-2xl">
+                            📸
+                          </div>
+                          <div className="text-left">
+                            <span className="text-xs font-bold tracking-wider block">SweetGram</span>
+                            <span className="text-[10px] text-pink-300">Fotos e comentários</span>
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-bold text-pink-400 uppercase tracking-widest bg-pink-500/10 px-2.5 py-0.5 rounded-full">Social</span>
                       </button>
                     </div>
 
@@ -600,6 +622,11 @@ export const PhoneOverlay: React.FC = () => {
                       })()
                     )}
                   </div>
+                )}
+
+                {/* 5. SWEETGRAM APP */}
+                {activeTab === 'sweetgram' && (
+                  <SweetGramApp onBack={() => setActiveTab('home')} />
                 )}
               </motion.div>
             )}
