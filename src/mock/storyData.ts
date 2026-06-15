@@ -156,7 +156,7 @@ export const mockStory: Record<string, DialogueNode> = {
     speaker: 'Remi',
     expression: 'sorrindo',
     characterName: 'Remi',
-    backgroundUrl: 'remi_encounter',
+    backgroundUrl: 'sala_de_aula',
     text: 'Magnifique. A carta dos Namorados se revelou para nós... Ela sugere uma conexão profunda prestes a florescer sob a luz da escola. O destino é sábio, chérie.',
     next: 'remi-end'
   },
@@ -165,7 +165,7 @@ export const mockStory: Record<string, DialogueNode> = {
     speaker: 'Remi',
     expression: 'provocando',
     characterName: 'Remi',
-    backgroundUrl: 'remi_encounter',
+    backgroundUrl: 'sala_de_aula',
     text: 'Ah, que ousadia deliciosa! A carta do Diabo se manifestou. Ela fala de tentação, magnetismo e desejos ocultos... Parece que você gosta de brincar com o perigo, mon ange.',
     next: 'remi-end'
   },
@@ -192,27 +192,20 @@ export const mockStory: Record<string, DialogueNode> = {
   'harry-start': {
     id: 'harry-start',
     speaker: 'Harry',
-    expression: 'neutro',
+    expression: 'smile',
     characterName: 'Harry',
     backgroundUrl: 'patio',
-    text: 'E aí, novata. Curtiu o riff de guitarra que eu estava ensaiando ou veio me mandar parar igual ao Nathaniel?',
+    text: 'E aí, novata. Curte um som? Quer aprender a tocar uns acordes?',
     choices: [
       {
-        text: 'Eu achei lindo... Você toca com muita paixão.',
-        nextNodeId: 'harry-guitar-nice',
+        text: 'Sim! Me ensina? (Jogar Minigame de Guitarra)',
         costPA: 10,
-        affinityChange: { characterId: 'harry', amount: 15 }
+        minigame: 'guitar'
       },
       {
-        text: 'Toca bem, mas aposto que eu consigo solar melhor que você.',
-        nextNodeId: 'harry-guitar-bold',
-        costPA: 10,
-        affinityChange: { characterId: 'harry', amount: 20 }
-      },
-      {
-        text: 'O barulho é legal, mas bem que podia tocar longe das salas de aula.',
+        text: 'Não, obrigada. Estou com pressa.',
         nextNodeId: 'harry-guitar-rude',
-        costPA: 10,
+        costPA: 0,
         affinityChange: { characterId: 'harry', amount: -15 }
       }
     ]
@@ -250,74 +243,83 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'patio',
-    text: 'Harry volta a dedilhar sua guitarra com um sorriso desafiador no rosto. Você resolve entrar para a sala de artes para conhecer a Maggie.',
-    next: 'maggie-start'
+    text: 'Harry guarda a palheta com um sorriso de lado. "Se você curte pinturas e desenhos, a Kami é a melhor do colégio. Dá um pulo na Sala de Artes depois."',
+    next: 'kami-art-start'
   },
 
-  // --- CENA 4: CLUBE DE ARTES (MAGGIE) ---
-  'maggie-start': {
-    id: 'maggie-start',
-    speaker: 'Maggie',
-    expression: 'neutral',
-    characterName: 'Maggie',
-    backgroundUrl: 'sala_de_artes',
-    text: 'Oiii! Sou a Maggie do clube de artes! Você quer me ajudar a pintar esse painel gigante super caótico?! Vai ter muita tinta colorida!',
+  // --- CENA 4: CLUBE DE ARTES (KAMI) ---
+  'kami-art-start': {
+    id: 'kami-art-start',
+    speaker: 'Kami',
+    expression: 'neutro',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    cgUrl: '/images/cgs/cg_kami_apron.png',
+    text: 'A sala tem cheiro de tinta a óleo fresca. Kami está em frente a uma tela gigante, vestindo um avental sujo de tinta. "Você tem o olhar de uma artista... Fique à vontade para desenhar o que quiser naquele cavalete em branco. Eu adoro colecionar a arte dos outros."',
     choices: [
       {
-        text: '"Uma colagem com tantas cores... É um caos bem planejado, eu diria."',
-        nextNodeId: 'maggie-nice',
+        text: 'Desenhar no Cavalete Livre (Jogo de Pintura Livre)',
+        nextNodeId: 'kami-paint-success',
+        minigame: 'painting',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 15 }
       },
       {
-        text: '"Se isso for me deixar suja de tinta dos pés à cabeça, eu aceito o desafio."',
-        nextNodeId: 'maggie-bold',
+        text: 'Suas misturas parecem... um pouco agressivas. Tem certeza disso?',
+        nextNodeId: 'kami-art-bold',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 20 }
+        affinityChange: { characterId: 'kami', amount: 20 }
       },
       {
-        text: '"Esse lugar parece precisar de uma boa organização antes de qualquer pintura."',
-        nextNodeId: 'maggie-rude',
-        costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: -15 }
+        text: 'Não quero me sujar de tinta, obrigada.',
+        nextNodeId: 'kami-art-rude',
+        costPA: 0,
+        affinityChange: { characterId: 'kami', amount: -15 }
       }
     ]
   },
-  'maggie-nice': {
-    id: 'maggie-nice',
-    speaker: 'Maggie',
-    expression: 'blushing',
-    characterName: 'Maggie',
-    backgroundUrl: 'sala_de_artes',
-    cgUrl: '/images/cgs/painting.png',
-    text: 'SIIIM! Pegue o pincel e vamos fazer mágica! Vamos encher essa escola cinza de cores vibrantes!',
-    next: 'maggie-end'
+  'kami-paint-success': {
+    id: 'kami-paint-success',
+    speaker: 'Kami',
+    expression: 'sorrindo',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Ela olha para a sua pintura recém terminada e esboça um leve sorriso. "Isso... tem muita personalidade. Vou adicionar à minha coleção de momentos guardados. Obrigada, Veronica."',
+    next: 'kami-art-end'
   },
-  'maggie-bold': {
-    id: 'maggie-bold',
-    speaker: 'Maggie',
-    expression: 'sly',
-    characterName: 'Maggie',
-    backgroundUrl: 'sala_de_artes',
-    text: 'Hahaha! Pura arte abstrata viva! Amei o elogio! Você é das minhas, Veronica!',
-    next: 'maggie-end'
+  'kami-paint-fail': {
+    id: 'kami-paint-fail',
+    speaker: 'Kami',
+    expression: 'triste',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Kami suspira e olha para a mancha marrom na paleta. "Acho que vou ter que recomeçar essa parte. Deixa para lá."',
+    next: 'kami-art-end'
   },
-  'maggie-rude': {
-    id: 'maggie-rude',
-    speaker: 'Maggie',
-    expression: 'angry',
-    characterName: 'Maggie',
-    backgroundUrl: 'sala_de_artes',
-    text: 'Ah... É que o caos estimula a minha criatividade artística... Mas desculpe a bagunça.',
-    next: 'maggie-end'
+  'kami-art-bold': {
+    id: 'kami-art-bold',
+    speaker: 'Kami',
+    expression: 'smile',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Ela dá um sorriso de canto. "Agressivas? Eu chamo de expressivas. Tem medo de intensidade, novata?"',
+    next: 'kami-art-end'
   },
-  'maggie-end': {
-    id: 'maggie-end',
+  'kami-art-rude': {
+    id: 'kami-art-rude',
+    speaker: 'Kami',
+    expression: 'neutro',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Ela volta a encarar a tela. "Tudo bem. A arte exige sacrifícios que nem todos estão dispostos a fazer."',
+    next: 'kami-art-end'
+  },
+  'kami-art-end': {
+    id: 'kami-art-end',
     speaker: 'Narrador',
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'sala_de_artes',
-    text: 'Após pintar com Maggie, as aulas finalmente chegam ao fim. O sinal toca anunciando o fim do dia escolar. No corredor, você encontra Lysandre procurando algo desesperadamente.',
+    text: 'Após pintar com a Kami, as aulas finalmente chegam ao fim. O sinal toca anunciando o fim do dia escolar. No corredor, você encontra Lysandre procurando algo desesperadamente.',
     next: 'lysandre-lost-notebook'
   },
 
@@ -369,7 +371,7 @@ export const mockStory: Record<string, DialogueNode> = {
     choices: [
       { text: 'Procurar na Sala de Aula', nextNodeId: 'search-classroom', costPA: 10 },
       { text: 'Procurar no Pátio das Cerejeiras', nextNodeId: 'search-courtyard', costPA: 10 },
-      { text: 'Procurar na Sala de Artes da Maggie', nextNodeId: 'search-art-room', costPA: 10 },
+      { text: 'Procurar na Sala de Artes da Kami', nextNodeId: 'search-art-room', costPA: 10 },
       { text: 'Procurar na Biblioteca com Remi', nextNodeId: 'search-library', costPA: 10 }
     ]
   },
@@ -459,7 +461,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'triste',
     characterName: 'Remi',
     backgroundUrl: 'sala_de_aula',
-    text: 'Ah, o caderno de composições do Lysandre? Ele perde até a própria cabeça se não estiver colada ao pescoço. Não vi nada aqui... Que tal olhar na sala de artes com a Maggie? O caos dela é magnético.',
+    text: 'Ah, o caderno de composições do Lysandre? Ele perde até a própria cabeça se não estiver colada ao pescoço. Não vi nada aqui... Que tal olhar na sala de artes com a Kami? A mente criativa dela atrai essas coisas.',
     next: 'quest-choose-location-library-done'
   },
   'remi-library-tease': {
@@ -468,7 +470,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'provocando',
     characterName: 'Remi',
     backgroundUrl: 'sala_de_aula',
-    text: 'Ah, chérie... Adoro o seu senso de desafio. A carta dos Namorados diz que seu caminho leva à Sala de Artes. Eu vi o Lysandre com a Maggie mais cedo, dê uma olhada lá.',
+    text: 'Ah, chérie... Adoro o seu senso de desafio. A carta dos Namorados diz que seu caminho leva à Sala de Artes. Eu vi o Lysandre com a Kami mais cedo, dê uma olhada lá.',
     next: 'quest-choose-location-library-done'
   },
   'quest-choose-location-library-done': {
@@ -481,7 +483,7 @@ export const mockStory: Record<string, DialogueNode> = {
     choices: [
       { text: 'Procurar na Sala de Aula', nextNodeId: 'search-classroom', costPA: 10 },
       { text: 'Procurar no Pátio das Cerejeiras', nextNodeId: 'search-courtyard', costPA: 10 },
-      { text: 'Procurar na Sala de Artes da Maggie', nextNodeId: 'search-art-room', costPA: 10 }
+      { text: 'Procurar na Sala de Artes da Kami', nextNodeId: 'search-art-room', costPA: 10 }
     ]
   },
   'quest-choose-location-2': {
@@ -493,7 +495,7 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'A sala de aula não tinha pistas. Onde procurar agora?',
     choices: [
       { text: 'Procurar no Pátio das Cerejeiras', nextNodeId: 'search-courtyard', costPA: 10 },
-      { text: 'Procurar na Sala de Artes da Maggie', nextNodeId: 'search-art-room', costPA: 10 },
+      { text: 'Procurar na Sala de Artes da Kami', nextNodeId: 'search-art-room', costPA: 10 },
       { text: 'Procurar na Biblioteca com Remi', nextNodeId: 'search-library', costPA: 10 }
     ]
   },
@@ -503,7 +505,6 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'patio',
-    cgUrl: '/images/cgs/patio.png',
     text: 'As pétalas de cerejeira caem no gramado. Você vê Castiel sob a árvore de fones de ouvido, e mais adiante, uma garota de cabelos escuros e mechas brancas (Kami) lendo concentrada.',
     choices: [
       { text: 'Aproximar-se de Castiel', nextNodeId: 'castiel-courtyard-meet', costPA: 0 },
@@ -606,7 +607,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'neutral',
     characterName: 'Kami',
     backgroundUrl: 'patio',
-    text: 'Aquele garoto vitoriano esquecido? Não vi caderno nenhum. Se eu fosse você, olhava com a Maggie na sala de artes. Ela adora recolher as coisas perdidas das pessoas.',
+    text: 'Aquele garoto vitoriano esquecido? Não vi caderno nenhum. Se eu fosse você, olhava com a Kami na sala de artes.',
     next: 'quest-choose-location-3'
   },
   'kami-courtyard-flirt-reply': {
@@ -615,7 +616,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'sly',
     characterName: 'Kami',
     backgroundUrl: 'patio',
-    text: 'Uh... Que direta. Você é bem ousada para uma novata, Veronica. Mas não, não vi o caderno do Lysandre. Vá falar com a Maggie na sala de artes.',
+    text: 'Uh... Que direta. Você é bem ousada para uma novata, Veronica. Mas não, não vi o caderno do Lysandre. Vá falar com a Kami na sala de artes.',
     next: 'quest-choose-location-3'
   },
   'castiel-courtyard-notebook': {
@@ -633,7 +634,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'sorrindo',
     characterName: 'Castiel',
     backgroundUrl: 'patio',
-    text: 'Hah! Fico impressionado com a sua coragem, novata. Mas para sua informação, o Lysandre estava com o caderno dele na sala de artes com a Maggie mais cedo.',
+    text: 'Hah! Fico impressionado com a sua coragem, novata. Mas para sua informação, o Lysandre estava com o caderno dele na sala de artes com a Kami mais cedo.',
     next: 'quest-choose-location-3'
   },
   'quest-choose-location-3': {
@@ -645,7 +646,7 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Ainda sem sinal do caderno. Qual o próximo destino?',
     choices: [
       { text: 'Procurar na Sala de Aula', nextNodeId: 'search-classroom', costPA: 10 },
-      { text: 'Procurar na Sala de Artes da Maggie', nextNodeId: 'search-art-room', costPA: 10 },
+      { text: 'Procurar na Sala de Artes da Kami', nextNodeId: 'search-art-room', costPA: 10 },
       { text: 'Procurar na Biblioteca com Remi', nextNodeId: 'search-library', costPA: 10 }
     ]
   },
@@ -655,45 +656,45 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'sala_de_artes',
-    text: 'A sala de artes tem um cheiro gostoso de tinta fresca. Maggie está guardando os pincéis e cantando baixo.',
+    text: 'A sala de artes tem um cheiro forte de solvente. Kami está limpando seus pincéis calmamente.',
     next: 'maggie-art-meet'
   },
   'maggie-art-meet': {
     id: 'maggie-art-meet',
-    speaker: 'Maggie',
-    expression: 'sorrindo',
-    characterName: 'Maggie',
-    backgroundUrl: 'sala_de_artes',
-    text: 'Oiii! Voltou para pintar comigo? O painel ainda tem espaço para cor!',
+    speaker: 'Kami',
+    expression: 'neutro',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Kami olha para você com a expressão inabalável. "Procurando algo?"',
     choices: [
       {
-        text: 'Procuramos um bloco de notas de couro preto do Lysandre. Viu?',
+        text: 'Sabe do caderno do Lysandre?',
         nextNodeId: 'maggie-art-notebook',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 15 }
+        affinityChange: { characterId: 'kami', amount: 15 }
       },
       {
-        text: 'Vim conferir se você não usou o caderno dele para limpar tinta!',
+        text: 'Não estava procurando nada, mas te encontrei.',
         nextNodeId: 'maggie-art-tease',
         costPA: 10,
-        affinityChange: { characterId: 'maggie', amount: 20 }
+        affinityChange: { characterId: 'kami', amount: 20 }
       }
     ]
   },
   'maggie-art-notebook': {
     id: 'maggie-art-notebook',
-    speaker: 'Maggie',
-    expression: 'sorrindo',
-    characterName: 'Maggie',
-    backgroundUrl: 'sala_de_artes',
-    text: 'Ah! Um bloco de notas de couro preto? Eu vi sim! Estava caído bem atrás do cavalete principal. Eu guardei na minha gaveta de esboços para proteger os poemas. Aqui está!',
-    next: 'quest-found-notebook'
+    speaker: 'Kami',
+    expression: 'smile',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: '"O diário dele? Sim, ele deixou em cima dessa mesa enquanto reclamava da paleta de cores." Ela te entrega o caderno.',
+    next: 'find-notebook'
   },
   'maggie-art-tease': {
     id: 'maggie-art-tease',
-    speaker: 'Maggie',
-    expression: 'sorrindo',
-    characterName: 'Maggie',
+    speaker: 'Kami',
+    expression: 'smile',
+    characterName: 'Kami',
     backgroundUrl: 'sala_de_artes',
     text: 'Hahaha! Seria uma boa tela abstrata! Mas falando sério, eu o encontrei no chão e guardei na gaveta para proteger a capa. Pode pegar!',
     next: 'quest-found-notebook'
@@ -716,7 +717,7 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Ah, olá... Você conseguiu encontrar alguma pista do meu bloco?',
     choices: [
       {
-        text: 'Sim! Encontrei na sala de artes com a Maggie. Aqui está!',
+        text: 'Sim! Encontrei na sala de artes com a Kami. Aqui está!',
         nextNodeId: 'lysandre-happy-end',
         costPA: 10,
         affinityChange: { characterId: 'lysandre', amount: 30 }
@@ -753,8 +754,128 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'patio',
-    text: 'Missão cumprida! Com o caderno são e salvo, você volta para casa orgulhosa de ter ajudado Lysandre no seu primeiro dia.',
-    next: 'quest-home-end'
+    text: 'Missão cumprida! O caderno está a salvo. Agora você tem um tempo livre para explorar a escola antes de ir para casa.',
+    next: 'free-time-hub'
+  },
+  'free-time-hub': {
+    id: 'free-time-hub',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'corredor',
+    text: 'Para onde você quer ir agora?',
+    choices: [
+      { text: 'Explorar a Biblioteca', nextNodeId: 'explore-library', costPA: 10 },
+      { text: 'Ir para o Pátio das Cerejeiras', nextNodeId: 'explore-courtyard', costPA: 10 },
+      { text: 'Assistir ao treino na Quadra de Basquete', nextNodeId: 'explore-basketball', costPA: 10 },
+      { text: 'Ir para casa (Finalizar o dia)', nextNodeId: 'quest-home-end', costPA: 0 }
+    ]
+  },
+  'explore-library': {
+    id: 'explore-library',
+    speaker: 'Nathaniel',
+    expression: 'sorrindo',
+    characterName: 'Nathaniel',
+    backgroundUrl: 'bg_library',
+    text: 'A biblioteca está magnífica com a luz da tarde. Nathaniel está arrumando alguns livros. "Veronica! Está procurando algo para ler? A escola é linda, não é?"',
+    choices: [
+      { text: '"Sim, você pode me mostrar mais da escola?"', nextNodeId: 'explore-library-tour', costPA: 5, affinityChanges: [{characterId: 'nathaniel', amount: 15}] },
+      { text: 'Apenas conversar e voltar', nextNodeId: 'free-time-hub', costPA: 0 }
+    ]
+  },
+  'explore-library-tour': {
+    id: 'explore-library-tour',
+    speaker: 'Nathaniel',
+    expression: 'sorrindo',
+    characterName: 'Nathaniel',
+    backgroundUrl: 'bg_library',
+    text: '"Com prazer! Vou adorar te apresentar tudo." Vocês passam um tempo conversando sobre livros.',
+    next: 'free-time-hub'
+  },
+  'explore-courtyard': {
+    id: 'explore-courtyard',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'bg_courtyard',
+    text: 'O pátio das cerejeiras está florido... Mas espere. Aquele é o Lysandre? Ele está entregando uma carta para a Kami?!',
+    choices: [
+      { text: 'Espiar a declaração...', nextNodeId: 'lysandre-kami-drama', costPA: 5 }
+    ]
+  },
+  'lysandre-kami-drama': {
+    id: 'lysandre-kami-drama',
+    speaker: 'Lysandre',
+    expression: 'neutro',
+    characterName: 'Lysandre',
+    backgroundUrl: 'bg_courtyard',
+    cgUrl: '/images/cgs/cg_lysandre_kami.png',
+    text: '"Kami... Eu escrevi isso pensando em você." Ele estende a carta. Kami desvia o olhar, suspirando. "Lysandre. Eu já disse. Não procure em mim uma musa."',
+    next: 'lysandre-kami-drama-2'
+  },
+  'lysandre-kami-drama-2': {
+    id: 'lysandre-kami-drama-2',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'bg_courtyard',
+    text: 'A tensão no ar é palpável. O que você vai fazer?',
+    choices: [
+      { text: 'Aparecer e tentar ajudar o Lysandre a conquistá-la', nextNodeId: 'help-lysandre', costPA: 10, affinityChanges: [{characterId: 'lysandre', amount: 20}] },
+      { text: 'Não se envolver e ir embora', nextNodeId: 'free-time-hub', costPA: 0 }
+    ]
+  },
+  'help-lysandre': {
+    id: 'help-lysandre',
+    speaker: 'Veronica',
+    expression: 'none',
+    characterName: 'Veronica',
+    backgroundUrl: 'bg_courtyard',
+    text: '"Kami, você devia dar uma chance! O poema dele é lindo!" Lysandre me olha surpreso, com o rosto vermelho.',
+    next: 'help-lysandre-2'
+  },
+  'help-lysandre-2': {
+    id: 'help-lysandre-2',
+    speaker: 'Kami',
+    expression: 'neutro',
+    characterName: 'Kami',
+    backgroundUrl: 'bg_courtyard',
+    text: '"Veronica? Há quanto tempo está espionando? De qualquer forma... o amor não é como uma pintura que você pode simplesmente consertar com outras cores." Kami vai embora.',
+    next: 'help-lysandre-3'
+  },
+  'help-lysandre-3': {
+    id: 'help-lysandre-3',
+    speaker: 'Lysandre',
+    expression: 'triste',
+    characterName: 'Lysandre',
+    backgroundUrl: 'bg_courtyard',
+    text: '"Agradeço a intenção, Veronica. Mas acho que preciso de tempo..." Ele guarda a carta com um olhar melancólico e sai.',
+    next: 'free-time-hub'
+  },
+  'explore-basketball': {
+    id: 'explore-basketball',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'bg_basketball_court',
+    text: 'Você escuta barulho de tênis cantando e a bola quicando. A Quadra de Basquete está lotada!',
+    next: 'basketball-match-start'
+  },
+  'basketball-match-start': {
+    id: 'basketball-match-start',
+    speaker: 'Remi',
+    expression: 'sorrindo',
+    characterName: 'Remi',
+    backgroundUrl: 'bg_basketball_court',
+    cgUrl: '/images/cgs/cg_boys_basketball.png',
+    text: 'Todos os garotos (Castiel, Lysandre, Nathaniel, Harry e Remi) estão jogando juntos de uniforme! O jogo está acirradíssimo. Para quem você vai gritar e torcer?',
+    choices: [
+      { text: 'Torcer pelo Castiel!', nextNodeId: 'free-time-hub', costPA: 5, affinityChanges: [{characterId: 'castiel', amount: 30}] },
+      { text: 'Torcer pelo Nathaniel!', nextNodeId: 'free-time-hub', costPA: 5, affinityChanges: [{characterId: 'nathaniel', amount: 30}] },
+      { text: 'Torcer pelo Lysandre!', nextNodeId: 'free-time-hub', costPA: 5, affinityChanges: [{characterId: 'lysandre', amount: 30}] },
+      { text: 'Torcer pelo Harry!', nextNodeId: 'free-time-hub', costPA: 5, affinityChanges: [{characterId: 'harry', amount: 30}] },
+      { text: 'Torcer pelo Remi!', nextNodeId: 'free-time-hub', costPA: 5, affinityChanges: [{characterId: 'remi', amount: 30}] }
+    ]
   },
 
   // --- CENA FINAL EM CASA E ACESSO AO CELULAR ---
@@ -901,10 +1022,10 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'sorrindo',
     characterName: 'Maggie',
     backgroundUrl: 'sala_de_artes',
-    text: 'Veronica! E aí, você vai vir pro Clube de Artes comigo ou vai pro Clube de Música com o Harry?',
+    text: 'Veronica! E aí, você vai vir pro Clube de Fotografia comigo ou vai pro Clube de Música com o Harry?',
     choices: [
       {
-        text: 'Clube de Artes: "Vou ficar com você, Maggie! Arte é tudo!"',
+        text: 'Clube de Fotografia: "Vou com você, Maggie! Fazer umas fotos legais!"',
         nextNodeId: 'ep2_maggie_path',
         costPA: 10,
         affinityChanges: [
@@ -929,7 +1050,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'sorrindo',
     characterName: 'Maggie',
     backgroundUrl: 'sala_de_artes',
-    text: 'EBAAA! Vamos pintar painéis gigantescas de neon! Vamos dominar o colégio com tinta!',
+    text: 'Maggie sorri segurando sua câmera polaroid. "Perfeito! A luz da tarde está ótima, vamos tirar fotos incríveis no pátio."',
     next: 'ep2_end_loop'
   },
   'ep2_harry_path': {
@@ -1054,7 +1175,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'sala_de_artes',
-    text: 'O galpão de artes está cheio de cores. Maggie está limpando uma tela. Próximo à mesa, há um pedaço de papel rasgado no lixo.',
+    text: 'A sala do clube de fotografia está cheia de fotos reveladas secando. Maggie está limpando a lente da câmera. Próximo à mesa, há um pedaço de papel rasgado no lixo.',
     choices: [
       { text: 'Examinar o papel no lixo', nextNodeId: 'find-paper-galpao', costPA: 10 },
       { text: 'Falar com Maggie', nextNodeId: 'maggie-start', costPA: 0 }
@@ -1075,7 +1196,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'sala_de_artes',
-    text: 'Maggie continua arrumando os cavaletes.',
+    text: 'Maggie continua arrumando os equipamentos fotográficos.',
     choices: [
       { text: 'Falar com Maggie', nextNodeId: 'maggie-start', costPA: 0 }
     ]

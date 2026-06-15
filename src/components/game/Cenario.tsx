@@ -35,7 +35,8 @@ const getBackgroundSrc = (url: string): string => {
     'corredor': '/images/backgrounds/corridor.png',
     'sala_de_aula': '/images/backgrounds/classroom.png',
     'patio': '/images/backgrounds/courtyard.png',
-    'sala_de_artes': '/images/backgrounds/art_room.png',
+    'sala_de_artes': '/images/backgrounds/bg_art_room_beautiful.png',
+    'artroom': '/images/backgrounds/bg_art_room_beautiful.png',
     'remi_encounter': '/images/backgrounds/remi_encounter.png',
   };
   return map[url.toLowerCase()] || `/images/backgrounds/${url}.png`;

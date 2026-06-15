@@ -7,6 +7,7 @@ let sharedAudioCtx: AudioContext | null = null;
 
 const playSynthesizedSound = (type: 'tick' | 'heart' | 'choice' | 'ring' | 'connected' | 'click') => {
   if (typeof window === 'undefined') return;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
   if (!AudioContextClass) return;
 
@@ -15,6 +16,7 @@ const playSynthesizedSound = (type: 'tick' | 'heart' | 'choice' | 'ring' | 'conn
       sharedAudioCtx = new AudioContextClass();
     }
     const ctx = sharedAudioCtx;
+    const initialPA = 99999;
     
     // Resume context if suspended (browsers suspend audio contexts until user interaction)
     if (ctx.state === 'suspended') {
@@ -124,10 +126,12 @@ const saveLocalProgress = (stateData: {
   currentLocationId?: string;
   lastDailyDraw?: number | null;
   equippedOutfit?: EquippedOutfit;
+  metCharacters?: string[];
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
-    let prevParsed = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let prevParsed: any = {};
     if (prevSaved) {
       try {
         prevParsed = JSON.parse(prevSaved);
@@ -137,7 +141,8 @@ const saveLocalProgress = (stateData: {
     }
     const merged = {
       ...prevParsed,
-      ...stateData
+      ...stateData,
+      metCharacters: stateData.metCharacters || prevParsed.metCharacters || [],
     };
     localStorage.setItem('local_game_state', JSON.stringify(merged));
   }
@@ -152,7 +157,11 @@ interface GameState {
   backgroundUrl: string;
   choices: Choice[] | undefined;
   storyTree: Record<string, DialogueNode>;
-  
+  // Minigame states
+  activeMinigame: string | null;
+  startMinigame: (minigameId: string) => void;
+  endMinigame: (score: number) => void;
+
   // Async status states
   isLoading: boolean;
   errorMsg: string | null;
@@ -169,6 +178,7 @@ interface GameState {
   } | null;
   focusedCharacter: string | null;
   chatThreads: ChatThread[];
+  metCharacters: string[];
   
   // Audio state
   isMuted: boolean;
@@ -199,9 +209,11 @@ interface GameState {
   startCall: (characterId: string, customNodeId?: string) => void;
   answerCall: () => void;
   endCall: () => void;
+  savePainting: (dataUrl: string) => void;
   selectChatChoice: (characterId: string, choiceIndex: number) => void;
   sendChatMessage: (characterId: string, text: string) => void;
   triggerIncomingText: (characterId: string, initialText: string) => void;
+  tryRandomMessage: () => void;
 
   // Episode Actions
   unlockedEpisodes: number[];
@@ -233,6 +245,7 @@ interface GameState {
   achievements: Achievement[];
   dailyQuests: DailyQuest[];
   sweetGramPosts: SweetGramPost[];
+  savedPaintings: string[];
   collectedItems: string[];
   achievementQueue: Achievement[];
 
@@ -248,13 +261,14 @@ interface GameState {
 
 export const useGameStore = create<GameState>((set, get) => ({
   currentNodeId: '',
-  playerPA: 100,
+  playerPA: 99999,
   playerGold: 50,
   currentSpeaker: '',
   currentText: '',
   backgroundUrl: '',
   choices: undefined,
   storyTree: {},
+  activeMinigame: null,
   isLoading: false,
   errorMsg: null,
   
@@ -279,6 +293,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentLocationId: 'school',
   activeCall: null,
   focusedCharacter: null,
+  metCharacters: [],
+  savedPaintings: [],
 
   // Lobby States
   currentView: 'lobby',
@@ -492,6 +508,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             text: option.text
           };
 
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { commentOptions, ...rest } = post;
           return {
             ...rest,
@@ -667,7 +684,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           if (activeNode) {
             set({
               currentNodeId: parsed.currentNodeId,
-              playerPA: parsed.playerPA,
+              playerPA: 99999, // FOR TESTING
               playerGold: parsed.playerGold,
               affinities: parsed.affinities || get().affinities,
               unlockedTips: parsed.unlockedTips || get().unlockedTips,
@@ -684,6 +701,10 @@ export const useGameStore = create<GameState>((set, get) => ({
               currentView: parsed.currentView || get().currentView,
               lastDailyDraw: parsed.lastDailyDraw || get().lastDailyDraw,
               equippedOutfit: parsed.equippedOutfit || get().equippedOutfit,
+              isMuted: parsed.isMuted ?? false,
+              chatThreads: parsed.chatThreads || [],
+              metCharacters: parsed.metCharacters || [],
+              savedPaintings: parsed.savedPaintings || [],
             });
             set({ isLoading: false });
             return;
@@ -726,7 +747,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       set({
         currentNodeId: data.current_node_id || 'start',
-        playerPA: data.points_of_action ?? 100,
+        playerPA: data.points_of_action ?? 99999,
         playerGold: data.gold ?? 50,
         affinities: mappedAffinities,
         isLoading: false,
@@ -754,7 +775,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           if (activeNode) {
             set({
               currentNodeId: parsed.currentNodeId,
-              playerPA: parsed.playerPA,
+              playerPA: 99999, // FOR TESTING
               playerGold: parsed.playerGold,
               affinities: parsed.affinities || get().affinities,
               unlockedTips: parsed.unlockedTips || get().unlockedTips,
@@ -771,6 +792,7 @@ export const useGameStore = create<GameState>((set, get) => ({
               currentView: parsed.currentView || get().currentView,
               lastDailyDraw: parsed.lastDailyDraw || get().lastDailyDraw,
               equippedOutfit: parsed.equippedOutfit || get().equippedOutfit,
+              metCharacters: parsed.metCharacters || [],
             });
             set({ isLoading: false });
             return;
@@ -906,6 +928,17 @@ export const useGameStore = create<GameState>((set, get) => ({
       get().collectClue('gabarito_rasgado');
     }
 
+    // Add speaker to metCharacters if valid
+    const state = get();
+    const nextSpeakerKey = nextNode.characterName?.toLowerCase();
+    const isMainCharacter = ['castiel', 'nathaniel', 'lysandre', 'remi', 'harry', 'maggie', 'kami'].includes(nextSpeakerKey || '');
+    
+    let updatedMetCharacters = state.metCharacters;
+    if (nextSpeakerKey && isMainCharacter && !updatedMetCharacters.includes(nextSpeakerKey)) {
+      updatedMetCharacters = [...updatedMetCharacters, nextSpeakerKey];
+      set({ metCharacters: updatedMetCharacters });
+    }
+
     set({
       currentNodeId: nextNodeId,
       currentSpeaker: nextNode.characterName,
@@ -915,9 +948,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       storyStage: nextStage,
     });
 
-    if (nextNode.triggerChatCharacterId && nextNode.triggerChatText) {
-      get().triggerIncomingText(nextNode.triggerChatCharacterId, nextNode.triggerChatText);
-    }
+    state.tryRandomMessage();
 
     saveLocalProgress({
       currentNodeId: nextNodeId,
@@ -931,6 +962,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       storyStage: nextStage,
       cluesFound: get().cluesFound,
       currentLocationId: get().currentLocationId,
+      metCharacters: get().metCharacters,
     });
   },
 
@@ -942,7 +974,17 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
+    if (choice.minigame) {
+      set({
+        playerPA: state.playerPA - choice.costPA,
+      });
+      state.startMinigame(choice.minigame);
+      return;
+    }
+
     const currentTree = state.storyTree['start'] ? state.storyTree : mockStory;
+    if (!choice.nextNodeId) return;
+    
     const nextNode = currentTree[choice.nextNodeId];
     if (!nextNode) return;
 
@@ -973,6 +1015,15 @@ export const useGameStore = create<GameState>((set, get) => ({
       state.collectClue('gabarito_rasgado');
     }
 
+    // Add speaker to metCharacters if valid
+    const speakerKey = nextNode.characterName?.toLowerCase();
+    const isMainCharacter = ['castiel', 'nathaniel', 'lysandre', 'remi', 'harry', 'maggie', 'kami'].includes(speakerKey);
+    
+    let updatedMetCharacters = state.metCharacters;
+    if (isMainCharacter && !updatedMetCharacters.includes(speakerKey)) {
+      updatedMetCharacters = [...updatedMetCharacters, speakerKey];
+    }
+
     set({
       playerPA: state.playerPA - choice.costPA,
       currentNodeId: choice.nextNodeId,
@@ -981,11 +1032,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       backgroundUrl: nextNode.backgroundUrl,
       choices: nextNode.choices,
       storyStage: nextStage,
+      metCharacters: updatedMetCharacters,
     });
 
-    if (nextNode.triggerChatCharacterId && nextNode.triggerChatText) {
-      state.triggerIncomingText(nextNode.triggerChatCharacterId, nextNode.triggerChatText);
-    }
+    state.tryRandomMessage();
 
     saveLocalProgress({
       currentNodeId: choice.nextNodeId,
@@ -999,30 +1049,77 @@ export const useGameStore = create<GameState>((set, get) => ({
       storyStage: nextStage,
       cluesFound: get().cluesFound,
       currentLocationId: get().currentLocationId,
+      metCharacters: get().metCharacters,
     });
+  },
 
-    // Spontaneous incoming call check
-    // Wait a brief delay after selecting choice before ringing to make it feel natural
-    const updatedAffinities = get().affinities;
-    Object.keys(updatedAffinities).forEach((charId) => {
-      const score = updatedAffinities[charId];
-      if (score >= 20 && !state.unlockedTips.includes(`${charId}_date_call`)) {
-        setTimeout(() => {
-          // Play ring sound
-          state.playSound('ring');
-          set({
-            unlockedTips: [...state.unlockedTips, `${charId}_date_call`],
-            activeCall: {
-              characterId: charId,
-              direction: 'incoming',
-              status: 'ringing',
-              dialogueNodeId: `incoming_call_${charId}_date`
-            },
-            isPhoneOpen: true
-          });
-        }, 1200);
+  startMinigame: (minigameId) => set({ activeMinigame: minigameId }),
+  
+  endMinigame: (score) => {
+    const state = get();
+    set({ activeMinigame: null });
+    
+    // Custom logic for Harry Guitar Minigame
+    if (state.currentNodeId === 'harry-start') {
+      let nextNodeId = 'harry-guitar-nice';
+      let affinityChange = 15;
+      
+      if (score >= 400) {
+        nextNodeId = 'harry-guitar-bold';
+        affinityChange = 20;
+      } else if (score < 150) {
+        nextNodeId = 'harry-guitar-rude';
+        affinityChange = -15;
       }
-    });
+
+      // Automatically apply affinity and advance to the proper node
+      set((s) => ({
+        affinities: {
+          ...s.affinities,
+          harry: (s.affinities.harry || 0) + affinityChange,
+        }
+      }));
+      
+      const nextNode = state.storyTree[nextNodeId];
+      if (nextNode) {
+        set((s) => ({
+          currentNodeId: nextNodeId,
+          currentSpeaker: nextNode.speaker,
+          currentText: nextNode.text,
+          backgroundUrl: nextNode.backgroundUrl,
+          choices: nextNode.choices,
+        }));
+      }
+    } else if (state.currentNodeId === 'kami-art-start') {
+      // Jogo de Pintura (Mixagem de Cores)
+      // Score alto (>= 80% de precisão) -> kami-paint-success
+      // Score baixo (< 80%) -> kami-paint-fail
+      let nextNodeId = 'kami-paint-success';
+      let affinityChange = 25;
+      
+      if (score < 80) {
+        nextNodeId = 'kami-paint-fail';
+        affinityChange = -10;
+      }
+
+      set((s) => ({
+        affinities: {
+          ...s.affinities,
+          kami: (s.affinities.kami || 0) + affinityChange,
+        }
+      }));
+      
+      const nextNode = state.storyTree[nextNodeId];
+      if (nextNode) {
+        set((s) => ({
+          currentNodeId: nextNodeId,
+          currentSpeaker: nextNode.speaker,
+          currentText: nextNode.text,
+          backgroundUrl: nextNode.backgroundUrl,
+          choices: nextNode.choices,
+        }));
+      }
+    }
   },
 
   addPA: (amount) => set((state) => ({ playerPA: state.playerPA + amount })),
@@ -1174,6 +1271,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ activeCall: null });
   },
 
+  savePainting: (dataUrl: string) => {
+    set((state) => ({
+      savedPaintings: [...state.savedPaintings, dataUrl]
+    }));
+  },
+
   selectRomanceFocus: (characterId) => set({ focusedCharacter: characterId }),
 
   selectChatChoice: (characterId, choiceIndex) => {
@@ -1210,6 +1313,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Update messages to remove choices from previous message, add player message
     const updatedMessages = thread.messages.map((m, idx) => {
       if (idx === currentMsgIndex) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { choices, ...rest } = m;
         return rest; // remove choices so they can't be clicked again
       }
@@ -1236,7 +1340,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       state.playSound('ring'); // notification chime
       
       let replyText = '';
-      let replyChoices: any[] | undefined = undefined;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const replyChoices: any[] | undefined = undefined;
 
       if (choice.nextMessageId === 'maggie_reply_nathaniel') {
         replyText = 'Hum, Nathaniel é meio certinho, mas ele é fofo mesmo! Aposto que ele vai gostar de você se você for educada!';
@@ -1407,7 +1512,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     saveLocalProgress({
       currentNodeId: startNodeId,
-      playerPA: 100,
+      playerPA: 99999,
       playerGold: 50,
       affinities: get().affinities,
       unlockedTips: get().unlockedTips,
@@ -1540,5 +1645,86 @@ export const useGameStore = create<GameState>((set, get) => ({
         currentLocationId: locationId,
       });
     }
+  },
+
+  tryRandomMessage: () => {
+    const state = get();
+    // 15% chance to trigger
+    if (Math.random() > 0.15) return;
+    
+    // Only characters we have met
+    const met = state.metCharacters || [];
+    if (met.length === 0) return;
+
+    // Pick a random met character
+    const randomChar = met[Math.floor(Math.random() * met.length)];
+
+    // Random phrases for each character
+    const phrases: Record<string, string[]> = {
+      castiel: [
+        'Ainda acordada? Que tédio.',
+        'Meu cachorro tá comendo meu sofá... de novo.',
+        'Você vai pro pátio amanhã? Talvez eu passe lá.',
+        'Hmph. Não vai dormir não?',
+        'Tocando um pouco de guitarra aqui pra matar o tempo.'
+      ],
+      nathaniel: [
+        'Boa noite! Conseguiu revisar a matéria de hoje?',
+        'O grêmio deu muito trabalho hoje, mas finalmente terminei.',
+        'Você prefere romances ou mistérios na literatura?',
+        'Espero que você tenha um ótimo dia amanhã!',
+        'Lembre-se de não chegar atrasada amanhã. Até mais!'
+      ],
+      lysandre: [
+        'A lua está belíssima hoje, não acha?',
+        'Acabei de compor alguns versos novos. Talvez te mostre amanhã.',
+        'Por acaso você não viu meu bloco de notas por aí, viu?',
+        'O silêncio da noite é inspirador.',
+        'Boa noite, senhorita. Durma bem.'
+      ],
+      remi: [
+        'Chérie, as cartas me disseram que você estava pensando em mim.',
+        'A roda da fortuna está girando ao nosso favor.',
+        'Já separou o look de amanhã? O grêmio espera por nós.',
+        'Que as estrelas guiem seus sonhos esta noite.',
+        'Sinto uma energia muito positiva vindo de você hoje.'
+      ],
+      harry: [
+        'E aí?! Tá fazendo o que?',
+        'Eu tava pensando aqui... amanhã a gente podia dar uma volta na escola!',
+        'Cara, que fome! Tem algum lanche aí?',
+        'Ahn... oi. Só passando pra dar oi mesmo.',
+        'Você acha que eu devia trocar a cor do meu cabelo de novo?'
+      ],
+      maggie: [
+        'Menina, você não sabe o babado!!',
+        'Tá acordada ainda? Vamos fazer uma fofoca rápida!',
+        'Odiei a atividade de hoje, juro. Muito chata!',
+        'E aí, já decidiu se tá de olho em alguém da escola? 👀',
+        'Ai que tédio! Manda algo pra assistir?'
+      ],
+      kami: [
+        'O silêncio do pátio faz falta de noite.',
+        'Espero que não esteja perdendo o sono à toa.',
+        'Eu? Só observando as estrelas da minha janela.',
+        'Você é bem curiosa, sabia?',
+        'Até amanhã. Tente não arrumar confusão.'
+      ]
+    };
+
+    const charPhrases = phrases[randomChar];
+    if (!charPhrases) return;
+
+    const randomPhrase = charPhrases[Math.floor(Math.random() * charPhrases.length)];
+    
+    // Check if there is already a thread, and if the last message was less than 5 minutes ago to avoid spam
+    const thread = state.chatThreads.find(t => t.characterId === randomChar);
+    if (thread && thread.messages.length > 0) {
+      const lastMsg = thread.messages[thread.messages.length - 1];
+      // Since timestamp is 'HH:MM', we just avoid sending if there's unread
+      if (thread.unread) return;
+    }
+
+    state.triggerIncomingText(randomChar, randomPhrase);
   },
 }));

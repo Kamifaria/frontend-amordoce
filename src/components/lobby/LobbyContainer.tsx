@@ -36,7 +36,7 @@ export const LobbyContainer: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0821]/80 via-[#100c2a]/95 to-[#070514] pointer-events-none" />
 
       {/* Top dashboard header bar */}
-      <header className="relative z-10 w-full max-w-6xl px-6 py-5 flex items-center justify-between border-b border-white/5">
+      <header className="relative z-10 w-full max-w-6xl px-4 md:px-6 py-3 md:py-5 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0 border-b border-white/5">
         {/* Title */}
         <div className="flex items-center gap-3">
           <img 
@@ -82,10 +82,10 @@ export const LobbyContainer: React.FC = () => {
       </header>
 
       {/* Main Content Dashboard */}
-      <main className="relative z-10 w-full max-w-6xl px-6 mt-8 flex-1 flex flex-col gap-6">
+      <main className="relative z-10 w-full max-w-6xl px-4 md:px-6 mt-4 md:mt-8 flex-1 flex flex-col gap-4 md:gap-6">
         
         {/* Tab Navigation Menu */}
-        <nav className="flex flex-wrap gap-2.5 border-b border-white/5 pb-5">
+        <nav className="flex flex-nowrap overflow-x-auto md:flex-wrap gap-2.5 border-b border-white/5 pb-4 md:pb-5">
           <button
             onClick={() => handleTabChange('episodes')}
             className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all ${

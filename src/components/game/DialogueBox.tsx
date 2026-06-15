@@ -92,17 +92,17 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
   return (
     <div 
       onClick={handleBoxClick}
-      className="absolute bottom-4 left-1/2 z-20 w-[95%] -translate-x-1/2 cursor-pointer select-none rounded-2xl border border-pink-500/35 bg-[#120e24]/85 p-5 shadow-[0_0_25px_rgba(219,39,119,0.15)] shadow-black/60 backdrop-blur-md transition-all hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(219,39,119,0.25)]"
+      className="absolute bottom-0 md:bottom-4 left-1/2 z-20 w-full md:w-[95%] -translate-x-1/2 cursor-pointer select-none rounded-none rounded-t-2xl md:rounded-2xl border border-b-0 md:border-b border-pink-500/35 bg-[#120e24]/90 md:bg-[#120e24]/85 p-3 md:p-5 shadow-[0_0_25px_rgba(219,39,119,0.15)] shadow-black/60 backdrop-blur-md transition-all hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(219,39,119,0.25)]"
     >
       {/* Speaker Tag */}
       {!isNarrator && (
-        <div className="absolute -top-4 left-6 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-600 to-purple-600 px-5 py-1 font-bold text-white text-xs shadow-[0_4px_12px_rgba(219,39,119,0.3)] border border-white/10 tracking-widest uppercase">
+        <div className="absolute -top-4 md:-top-4 left-4 md:left-6 rounded-xl bg-gradient-to-r from-pink-500 via-fuchsia-600 to-purple-600 px-4 md:px-5 py-1 font-bold text-white text-[10px] md:text-xs shadow-[0_4px_12px_rgba(219,39,119,0.3)] border border-white/10 tracking-widest uppercase">
           {speakerName}
         </div>
       )}
 
       {/* Narrative/Speech Area */}
-      <div className={`mt-1.5 min-h-[55px] text-slate-100 text-sm leading-relaxed ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
+      <div className={`mt-1 md:mt-1.5 min-h-[45px] md:min-h-[55px] text-slate-100 text-[11px] md:text-sm leading-relaxed ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
         {displayedText}
       </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { useGameStore } from '@/store/useGameStore';
 
@@ -20,7 +20,8 @@ const getBackgroundSrc = (url: string): string => {
     'corredor': '/images/backgrounds/corridor.png',
     'sala_de_aula': '/images/backgrounds/classroom.png',
     'patio': '/images/backgrounds/courtyard.png',
-    'sala_de_artes': '/images/backgrounds/art_room.png',
+    'sala_de_artes': '/images/backgrounds/bg_art_room_beautiful.png',
+    'artroom': '/images/backgrounds/bg_art_room_beautiful.png',
     'remi_encounter': '/images/backgrounds/remi_encounter.png',
   };
   return map[url.toLowerCase()] || `/images/backgrounds/${url}.png`;
@@ -29,12 +30,21 @@ const getBackgroundSrc = (url: string): string => {
 export const CGOverlay: React.FC<CGOverlayProps> = ({ cgUrl, cgId, isOpen, onClose }) => {
   const unlockCG = useGameStore((state) => state.unlockCG);
   const backgroundUrl = useGameStore((state) => state.backgroundUrl);
+  const [displayUrl, setDisplayUrl] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && cgId) {
       unlockCG(cgId);
     }
   }, [isOpen, cgId, unlockCG]);
+
+  useEffect(() => {
+    if (cgUrl) {
+      // Add a cache buster so the browser fetches the newly generated/fixed image
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDisplayUrl(`${cgUrl}?v=${Date.now()}`);
+    }
+  }, [cgUrl]);
 
   if (!isOpen) return null;
 
@@ -50,9 +60,9 @@ export const CGOverlay: React.FC<CGOverlayProps> = ({ cgUrl, cgId, isOpen, onClo
         
         {/* CG Image */}
         <img
-          src={cgUrl}
+          src={displayUrl || cgUrl}
           alt="Ilustração Especial"
-          className="w-full h-full object-cover animate-scale-up"
+          className="w-full h-full object-contain animate-scale-up"
         />
 
         {/* Shine Overlay Effect */}
@@ -61,14 +71,14 @@ export const CGOverlay: React.FC<CGOverlayProps> = ({ cgUrl, cgId, isOpen, onClo
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 bg-black/50 hover:bg-pink-600/90 text-white p-2.5 rounded-full border border-white/20 transition-all cursor-pointer hover:scale-105 active:scale-95"
+          className="absolute top-4 right-4 bg-black/50 hover:bg-pink-600/90 text-white p-2.5 rounded-full border border-white/20 transition-all cursor-pointer hover:scale-105 active:scale-95 z-50"
           title="Fechar Ilustração"
         >
           <X size={18} />
         </button>
 
         {/* CG Title/Celebration Badges */}
-        <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1.5 text-left pointer-events-none">
+        <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1.5 text-left pointer-events-none z-10">
           <div className="flex items-center gap-1 bg-pink-500/20 text-pink-300 border border-pink-500/30 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest w-fit animate-pulse">
             <Sparkles size={10} /> Ilustração Desbloqueada
           </div>

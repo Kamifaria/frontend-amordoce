@@ -1,11 +1,12 @@
 export interface Choice {
   text: string;
-  nextNodeId: string;
+  nextNodeId?: string;
   costPA: number;
   affinityChange?: {
     characterId: string;
     amount: number;
   };
+  minigame?: string;
   affinityChanges?: {
     characterId: string;
     amount: number;

@@ -11,7 +11,8 @@ import {
   ChevronLeft, 
   Sparkles,
   Volume2,
-  VolumeX
+  VolumeX,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useGameStore } from '@/store/useGameStore';
 import { LoveOMeter } from './LoveOMeter';
@@ -30,10 +31,12 @@ export const PhoneOverlay: React.FC = () => {
     isMuted,
     toggleMute,
     chatThreads,
-    cluesFound
+    cluesFound,
+    metCharacters,
+    savedPaintings,
   } = useGameStore();
 
-  const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips' | 'chat' | 'sweetgram'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'contacts' | 'tips' | 'chat' | 'sweetgram' | 'gallery'>('home');
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
 
@@ -142,7 +145,7 @@ export const PhoneOverlay: React.FC = () => {
   return (
     <div 
       onClick={togglePhone}
-      className="absolute inset-0 z-50 flex items-center justify-end p-6 bg-black/60 backdrop-blur-sm pointer-events-auto cursor-pointer"
+      className="absolute inset-0 z-50 flex items-center justify-center md:justify-end p-0 md:p-6 bg-[#0c0a1a] md:bg-black/60 backdrop-blur-sm pointer-events-auto cursor-pointer"
     >
       {/* Smartphone container */}
       <motion.div 
@@ -151,7 +154,7 @@ export const PhoneOverlay: React.FC = () => {
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 200, opacity: 0, scale: 0.95 }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="relative w-[340px] h-[640px] rounded-[48px] border-[10px] border-[#1e1c2e] bg-[#0c0a1a] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col ring-4 ring-purple-500/20 cursor-default"
+        className="relative w-full h-[100dvh] md:w-[340px] md:h-[640px] rounded-none md:rounded-[48px] border-0 md:border-[10px] border-[#1e1c2e] bg-[#0c0a1a] shadow-none md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col ring-0 md:ring-4 ring-purple-500/20 cursor-default"
       >
         {/* Smartphone Camera Notch */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 w-28 h-5 rounded-full bg-[#1e1c2e] z-40 flex items-center justify-center">
@@ -302,6 +305,17 @@ export const PhoneOverlay: React.FC = () => {
                         <span className="text-xs font-semibold tracking-wider">LoveTips</span>
                       </button>
 
+                      {/* Gallery App */}
+                      <button 
+                        onClick={() => setActiveTab('gallery')}
+                        className="aspect-square rounded-3xl bg-gradient-to-tr from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/10 hover:border-amber-500/30 transition-all p-4 flex flex-col items-center justify-center gap-2 text-slate-100 group cursor-pointer shadow-lg shadow-black/30"
+                      >
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <ImageIcon className="text-amber-400" size={24} />
+                        </div>
+                        <span className="text-xs font-semibold tracking-wider">Galeria</span>
+                      </button>
+
                       {/* SweetGram App */}
                       <button 
                         onClick={() => {
@@ -354,6 +368,32 @@ export const PhoneOverlay: React.FC = () => {
                   </div>
                 )}
 
+                {/* GALLERY APP */}
+                {activeTab === 'gallery' && (
+                  <div className="flex-1 flex flex-col pt-2 h-full">
+                    <div className="flex items-center gap-2 mb-4">
+                      <button onClick={() => setActiveTab('home')} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white cursor-pointer">
+                        <ChevronLeft size={18} />
+                      </button>
+                      <h2 className="text-lg font-bold text-slate-200">Minhas Pinturas</h2>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto grid grid-cols-2 gap-3 pr-1 pb-20">
+                      {savedPaintings.length === 0 ? (
+                        <div className="col-span-2 text-center text-slate-500 text-xs py-10">
+                          Nenhuma arte salva ainda.<br/>Visite a Sala de Artes!
+                        </div>
+                      ) : (
+                        savedPaintings.map((imgUrl, idx) => (
+                          <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-white/5 group">
+                            <img src={imgUrl} alt={`Pintura ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* 2. CONTACTS APP */}
                 {activeTab === 'contacts' && (
                   <div className="flex-1 flex flex-col pt-2">
@@ -366,7 +406,9 @@ export const PhoneOverlay: React.FC = () => {
 
                     {/* Contacts scroll list */}
                     <div className="flex flex-col gap-4 overflow-y-auto max-h-[460px] pr-1">
-                      {contacts.map((char) => {
+                      {contacts
+                        .filter((char) => (metCharacters || []).includes(char.id))
+                        .map((char) => {
                         const score = affinities[char.id] ?? 0;
                         return (
                           <div key={char.id} className="flex flex-col gap-2 p-1.5 bg-[#120e2b]/55 border border-purple-500/10 rounded-2xl shadow-sm">

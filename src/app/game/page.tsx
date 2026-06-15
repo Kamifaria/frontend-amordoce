@@ -6,6 +6,7 @@ import { GameScreen } from '@/components/game/GameScreen';
 import { LobbyContainer } from '@/components/lobby';
 import { useGameStore } from '@/store/useGameStore';
 import { AchievementToast } from '@/components/game/AchievementToast';
+import { AudioController } from '@/components/game/AudioController';
 
 export default function GamePage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-[#0f0c1b] text-slate-100 flex flex-col items-center justify-center font-sans w-screen overflow-hidden">
+      <AudioController />
       {currentView === 'lobby' ? <LobbyContainer /> : <GameScreen />}
       <AchievementToast />
     </div>

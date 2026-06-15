@@ -7,7 +7,6 @@ import { GameContainer } from './GameContainer';
 import { Cenario } from './Cenario';
 import { SpriteCharacter } from './SpriteCharacter';
 import { DialogueBox } from './DialogueBox';
-import { ChoiceOverlay } from './ChoiceOverlay';
 import { useGameStore } from '@/store/useGameStore';
 import { 
   XCircle, 
@@ -25,6 +24,8 @@ import { PhoneOverlay } from './PhoneOverlay';
 import { MapOverlay } from './MapOverlay';
 import { CGOverlay } from './CGOverlay';
 import { EpisodeFinishedOverlay } from './EpisodeFinishedOverlay';
+import { GuitarMinigame } from './minigames/GuitarMinigame';
+import { PaintingMinigame } from './minigames/PaintingMinigame';
 import { Choice } from '@/shared/types';
 import { mockStory } from '@/mock/storyData';
 
@@ -41,6 +42,7 @@ export const GameScreen: React.FC = () => {
     backgroundUrl,
     choices,
     storyTree,
+    activeMinigame,
     fetchCurrentGameState,
     advance,
     errorMsg,
@@ -65,6 +67,7 @@ export const GameScreen: React.FC = () => {
 
   useEffect(() => {
     if (activeNode && activeNode.cgUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveCG({ url: activeNode.cgUrl, id: activeNode.id });
     }
   }, [activeNode]);
@@ -98,9 +101,9 @@ export const GameScreen: React.FC = () => {
       {currentNodeId ? (
         <GameContainer>
           {/* Top HUD Bar (Unified and isolated within game container) */}
-          <div className="absolute top-4 left-4 right-4 z-30 flex justify-between items-center pointer-events-auto select-none">
+          <div className="absolute top-2 md:top-4 left-2 md:left-4 right-2 md:right-4 z-30 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 pointer-events-auto select-none">
             {/* PA & Gold counters */}
-            <div className="flex items-center gap-3 bg-[#120e24]/75 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 shadow-lg text-xs font-bold text-white tracking-wide transition-all hover:bg-[#120e24]/85">
+            <div className="flex items-center gap-2 md:gap-3 bg-[#120e24]/75 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-white/10 shadow-lg text-[10px] md:text-xs font-bold text-white tracking-wide transition-all hover:bg-[#120e24]/85">
               <div className="flex items-center gap-1.5 text-pink-400 hover:scale-105 transition-transform">
                 <Heart size={14} className="fill-pink-500/20 text-pink-500 animate-pulse" />
                 <span>PA: <span className="text-white text-sm font-extrabold">{playerPA}</span></span>
@@ -113,7 +116,7 @@ export const GameScreen: React.FC = () => {
             </div>
 
             {/* Top Bar Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
               {/* Mute Button */}
               <button
                 onClick={toggleMute}
@@ -142,26 +145,23 @@ export const GameScreen: React.FC = () => {
               </button>
 
               {storyStage !== 'INTRO' && (
-                <>
-                  {/* Map Button */}
-                  <button
-                    onClick={() => setIsMapOpen(true)}
-                    title="Abrir Mapa"
-                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-emerald-300 hover:text-emerald-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
-                  >
-                    <Map size={16} />
-                  </button>
-
-                  {/* Phone Button */}
-                  <button
-                    onClick={togglePhone}
-                    title="Abrir Celular"
-                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-md active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
-                  >
-                    <Smartphone size={16} />
-                  </button>
-                </>
+                <button
+                  onClick={() => setIsMapOpen(true)}
+                  title="Abrir Mapa"
+                  className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-emerald-300 hover:text-emerald-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+                >
+                  <Map size={16} />
+                </button>
               )}
+
+              {/* Phone Button */}
+              <button
+                onClick={togglePhone}
+                title="Abrir Celular"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-md active:scale-95 hover:brightness-110 transition-all cursor-pointer border border-white/10"
+              >
+                <Smartphone size={16} />
+              </button>
 
               {/* Logout Button */}
               <button
@@ -242,6 +242,10 @@ export const GameScreen: React.FC = () => {
           )}
           {/* Smartphone Overlay */}
           <PhoneOverlay />
+
+          {/* Minigame Overlay */}
+          {activeMinigame === 'guitar' && <GuitarMinigame />}
+          {activeMinigame === 'painting' && <PaintingMinigame />}
 
           {/* Map Overlay */}
           <MapOverlay isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} />

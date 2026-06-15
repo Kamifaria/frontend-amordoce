@@ -37,7 +37,9 @@ export const SweetGramApp: React.FC<SweetGramAppProps> = ({ onBack }) => {
 
       {/* Posts Feed container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20">
-        {sweetGramPosts.map((post) => {
+        {sweetGramPosts
+          .filter(post => useGameStore.getState().metCharacters?.includes(post.characterId))
+          .map((post) => {
           return (
             <div
               key={post.id}

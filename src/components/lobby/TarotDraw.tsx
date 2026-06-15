@@ -59,6 +59,7 @@ export const TarotDraw: React.FC = () => {
   // Check cooldown status
   const checkCooldown = () => {
     if (!lastDailyDraw) return false;
+    // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;
     const elapsed = now - lastDailyDraw;
@@ -78,6 +79,7 @@ export const TarotDraw: React.FC = () => {
   useEffect(() => {
     // Shuffling a selection of 3 cards from the deck
     const shuffled = [...TAROT_DECK].sort(() => Math.random() - 0.5).slice(0, 3);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShuffledCards(shuffled);
 
     // Keep cooldown timer updated
@@ -86,6 +88,7 @@ export const TarotDraw: React.FC = () => {
     }, 30000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastDailyDraw]);
 
   const handleCardClick = (idx: number) => {
@@ -117,7 +120,7 @@ export const TarotDraw: React.FC = () => {
           O Tarô do Destino de Remi
         </h3>
         <p className="text-sm text-slate-300 leading-relaxed font-medium">
-          "Deixe as cartas guiarem seus passos na Sweet Amoris, chérie. Uma vez por dia, puxe uma carta de tarô do meu deck e receba minha bênção na forma de PA ou moedas de Ouro!"
+          &quot;Deixe as cartas guiarem seus passos na Sweet Amoris, chérie. Uma vez por dia, puxe uma carta de tarô do meu deck e receba minha bênção na forma de PA ou moedas de Ouro!&quot;
         </p>
 
         {isLocked && (
@@ -216,7 +219,7 @@ export const TarotDraw: React.FC = () => {
             </div>
             <h4 className="text-xl font-black text-pink-300 mb-1">{revealedCard.name}</h4>
             <p className="text-sm font-semibold text-white max-w-sm mb-4">
-              "{revealedCard.description}"
+              &quot;{revealedCard.description}&quot;
             </p>
             <div className="text-lg font-black text-yellow-300 bg-yellow-500/10 border border-yellow-500/20 px-6 py-2 rounded-full tracking-wider animate-bounce">
               Recebido: +{revealedCard.rewardAmount} {revealedCard.rewardType}!
