@@ -12,12 +12,13 @@ interface Chord {
   label: string;
 }
 
-const SONG_DURATION = 35; // Reduzido para melhor ritmo
-const AUDIO_SRC = '/audio/Harry Styles - As It Was (Official Video).mp3';
+const SONG_DURATION = 40;
+const HARRY_AUDIO_SRC = '/audio/Harry Styles - As It Was (Official Video).mp3';
+const KAMI_AUDIO_SRC = '/audio/Cyberpunk_ Edgerunners  I Really Want to Stay At Your House by Rosa Walton  Music Video.mp3';
 const STRING_COUNT = 4;
 
 export const GuitarMinigame: React.FC = () => {
-  const { endMinigame } = useGameStore();
+  const { endMinigame, currentNodeId } = useGameStore();
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(SONG_DURATION);
   const [gameState, setGameState] = useState<'playing' | 'finished'>('playing');
@@ -27,7 +28,8 @@ export const GuitarMinigame: React.FC = () => {
 
   // Initialize Audio
   useEffect(() => {
-    audioRef.current = new Audio(AUDIO_SRC);
+    const isKamiRoute = currentNodeId.includes('kami');
+    audioRef.current = new Audio(isKamiRoute ? KAMI_AUDIO_SRC : HARRY_AUDIO_SRC);
     audioRef.current.volume = 0.5;
     
     // Play automatically

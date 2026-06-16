@@ -1090,6 +1090,32 @@ export const useGameStore = create<GameState>((set, get) => ({
           choices: nextNode.choices,
         }));
       }
+    } else if (state.currentNodeId === 'kami-guitar-secret') {
+      let nextNodeId = 'kami-guitar-lose';
+      let affinityChange = -5;
+      
+      if (score >= 400) {
+        nextNodeId = 'kami-guitar-win';
+        affinityChange = 25;
+      }
+
+      set((s) => ({
+        affinities: {
+          ...s.affinities,
+          kami: (s.affinities.kami || 0) + affinityChange,
+        }
+      }));
+      
+      const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
+      if (nextNode) {
+        set((s) => ({
+          currentNodeId: nextNodeId,
+          currentSpeaker: nextNode.speaker,
+          currentText: nextNode.text,
+          backgroundUrl: nextNode.backgroundUrl,
+          choices: nextNode.choices,
+        }));
+      }
     } else if (state.currentNodeId === 'kami-art-start') {
       // Jogo de Pintura (Mixagem de Cores)
       // Score alto (>= 80% de precisão) -> kami-paint-success

@@ -557,7 +557,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'none',
     characterName: 'Narrador',
     backgroundUrl: 'patio',
-    text: 'Harry guarda a palheta com um sorriso de lado. "Se você curte pinturas e desenhos, a Kami é a melhor do colégio. Dá um pulo na Sala de Artes depois."',
+    text: 'Harry guarda a palheta com um sorriso misterioso. "Se você curte pinturas, a Kami é a melhor do colégio na Sala de Artes. Mas um aviso: se você souber o que falar, vai descobrir que ela tem um talento insano pra guitarra."',
     next: 'kami-art-start'
   },
 
@@ -584,12 +584,56 @@ export const mockStory: Record<string, DialogueNode> = {
         affinityChange: { characterId: 'kami', amount: 20 }
       },
       {
+        text: '"O Harry me disse que você esconde um talento com a guitarra... É verdade?"',
+        nextNodeId: 'kami-guitar-secret',
+        costPA: 10,
+      },
+      {
         text: 'Não quero me sujar de tinta, obrigada.',
         nextNodeId: 'kami-art-rude',
         costPA: 0,
         affinityChange: { characterId: 'kami', amount: -15 }
       }
     ]
+  },
+  'kami-guitar-secret': {
+    id: 'kami-guitar-secret',
+    speaker: 'Kami',
+    expression: 'sly',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Kami para o pincel no ar e te olha com um sorriso desafiador. "O Harry não sabe ficar de bico calado, huh? É, eu toco Cyberpunk. E já que você tocou no assunto... pegue aquela guitarra ali. Quero ver o que você sabe fazer!"',
+    choices: [
+      {
+        text: 'Aceitar o duelo de guitarra! (Minigame)',
+        costPA: 10,
+        minigame: 'guitar'
+      },
+      {
+        text: 'Eu só estava curiosa, não sou tão boa.',
+        nextNodeId: 'kami-art-rude',
+        costPA: 0,
+        affinityChange: { characterId: 'kami', amount: -5 }
+      }
+    ]
+  },
+  'kami-guitar-win': {
+    id: 'kami-guitar-win',
+    speaker: 'Kami',
+    expression: 'blushing',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Kami ri e guarda a guitarra, levemente impressionada. "Nada mau, novata. Você acompanhou bem o ritmo. Talvez você não seja tão entediante quanto a maioria por aqui."',
+    next: 'quest-choose-location'
+  },
+  'kami-guitar-lose': {
+    id: 'kami-guitar-lose',
+    speaker: 'Kami',
+    expression: 'neutro',
+    characterName: 'Kami',
+    backgroundUrl: 'artroom',
+    text: 'Ela suspira, afinando uma corda antes de apoiar a guitarra no chão. "Você perdeu o ritmo ali no meio, mas valeu a tentativa. Quem sabe numa próxima."',
+    next: 'quest-choose-location'
   },
   'kami-paint-success': {
     id: 'kami-paint-success',
