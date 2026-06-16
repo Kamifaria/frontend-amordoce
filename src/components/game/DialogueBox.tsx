@@ -102,7 +102,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
       )}
 
       {/* Narrative/Speech Area */}
-      <div className={`mt-1 md:mt-1.5 min-h-[50px] md:min-h-[55px] text-slate-100 text-[13px] md:text-sm leading-relaxed ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
+      <div className={`mt-1 md:mt-1.5 min-h-[60px] md:min-h-[65px] text-slate-100 text-[15px] md:text-[17px] leading-relaxed ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
         {displayedText}
       </div>
 
