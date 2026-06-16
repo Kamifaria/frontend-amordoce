@@ -12,7 +12,7 @@ const CARDS_DATA = [
 ];
 
 export const RemiTarotGame: React.FC = () => {
-  const { endMinigame } = useGameStore();
+  const { endMinigame, changeAffinity } = useGameStore();
   const [gameState, setGameState] = useState<'show' | 'shuffling' | 'guess' | 'result'>('show');
   const [positions, setPositions] = useState([0, 1, 2]);
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
@@ -57,9 +57,11 @@ export const RemiTarotGame: React.FC = () => {
       const cardType = CARDS_DATA[cardIdAtPosition].id;
 
       if (cardType === 'lovers') {
-        endMinigame(100, { characterId: 'remi', amount: 15 });
+        changeAffinity('remi', 15);
+        endMinigame(100);
       } else {
-        endMinigame(0, { characterId: 'remi', amount: -5 });
+        changeAffinity('remi', -5);
+        endMinigame(0);
       }
     }, 2000);
   };

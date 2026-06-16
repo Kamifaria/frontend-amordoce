@@ -14,7 +14,7 @@ const PAPERS = [
 ];
 
 export const NathanielSwipeGame: React.FC = () => {
-  const { endMinigame } = useGameStore();
+  const { endMinigame, changeAffinity } = useGameStore();
   const [cards, setCards] = useState(PAPERS);
   const [score, setScore] = useState(0);
 
@@ -41,7 +41,8 @@ export const NathanielSwipeGame: React.FC = () => {
       const nextCards = prev.filter(c => c.id !== cardId);
       if (nextCards.length === 0) {
         setTimeout(() => {
-          endMinigame(100, { characterId: 'nathaniel', amount: 15 });
+          changeAffinity('nathaniel', 15);
+          endMinigame(100);
         }, 1000);
       }
       return nextCards;

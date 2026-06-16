@@ -13,7 +13,7 @@ const POEM_PAIRS = [
 ];
 
 export const LysandreMemoryGame: React.FC = () => {
-  const { endMinigame } = useGameStore();
+  const { endMinigame, changeAffinity } = useGameStore();
   const [cards, setCards] = useState<{ id: string; text: string; matchId: string; isFlipped: boolean; isMatched: boolean }[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matches, setMatches] = useState(0);
@@ -50,7 +50,10 @@ export const LysandreMemoryGame: React.FC = () => {
           setMatches(m => {
             const newM = m + 1;
             if (newM === POEM_PAIRS.length) {
-              setTimeout(() => endMinigame(100, { characterId: 'lysandre', amount: 15 }), 1000);
+              setTimeout(() => {
+                changeAffinity('lysandre', 15);
+                endMinigame(100);
+              }, 1000);
             }
             return newM;
           });
