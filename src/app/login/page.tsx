@@ -54,16 +54,16 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full flex flex-col justify-center md:justify-end items-center bg-[#070514] overflow-y-auto font-sans p-4 md:p-0">
+    <div className="relative min-h-[100dvh] w-full flex flex-col justify-end items-center bg-[#070514] overflow-y-auto font-sans p-4 md:p-0">
       
       {/* Background image base layer - fully visible and crisp */}
       <div 
-        className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+        className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-500"
         style={{ backgroundImage: `url('/images/login_background.jpg')` }}
       />
       
       {/* Soft vignette overlay to enhance readability of inputs but keep characters fully visible */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/35 pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/80 via-transparent to-black/35 pointer-events-none" />
 
       {/* Floating error notification at the top of the screen */}
       <AnimatePresence>
