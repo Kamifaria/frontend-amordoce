@@ -50,6 +50,7 @@ export const LysandreMemoryGame: React.FC = () => {
           setMatches(m => {
             const newM = m + 1;
             if (newM === POEM_PAIRS.length) {
+              // Finaliza o minigame apos 1 segundo
               setTimeout(() => {
                 changeAffinity('lysandre', 15);
                 endMinigame(100);
