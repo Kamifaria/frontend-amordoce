@@ -17,6 +17,12 @@ const POSITION_CLASSES = {
   direita: 'right-[2%]',
 };
 
+const WIDTH_CLASSES = {
+  esquerda: 'w-[55%] md:w-[45%] lg:w-[40%]',
+  centro: 'w-[75%] md:w-[45%] lg:w-[40%]',
+  direita: 'w-[55%] md:w-[45%] lg:w-[40%]',
+};
+
 const EXPRESSION_ANIMATE = {
   neutro:     { opacity: 1, y: 0, x: 0, rotate: 0, scale: 1 },
   sorrindo:   { opacity: 1, y: 0, x: 0, rotate: 0, scale: 1.03 },
@@ -139,7 +145,7 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
 
   return (
     <div
-      className={`absolute bottom-0 z-10 pointer-events-none ${POSITION_CLASSES[position]} w-[85%] md:w-[45%] lg:w-[40%]`}
+      className={`absolute bottom-0 z-10 pointer-events-none ${POSITION_CLASSES[position]} ${WIDTH_CLASSES[position]}`}
       style={{ height: '100%' }}
     >
       <AnimatePresence mode="wait">
