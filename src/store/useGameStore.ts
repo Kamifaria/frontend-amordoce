@@ -1109,15 +1109,44 @@ export const useGameStore = create<GameState>((set, get) => ({
         }
       }));
       
-      const nextNode = state.storyTree[nextNodeId];
+      const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
         set((s) => ({
           currentNodeId: nextNodeId,
-          currentSpeaker: nextNode.speaker,
+          currentSpeaker: nextNode.speaker || nextNode.characterName,
           currentText: nextNode.text,
           backgroundUrl: nextNode.backgroundUrl,
           choices: nextNode.choices,
         }));
+      }
+    } else if (state.currentNodeId === 'remi-start') {
+      // Jogo de Tarot do Remi
+      // Vence se escolheu a carta lovers (score === 100) -> remi-tarot-lovers
+      // Perde caso contrário (score === 0) -> remi-tarot-tower
+      const nextNodeId = score === 100 ? 'remi-tarot-lovers' : 'remi-tarot-tower';
+      const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
+      if (nextNode) {
+        set({
+          currentNodeId: nextNodeId,
+          currentSpeaker: nextNode.speaker || nextNode.characterName,
+          currentText: nextNode.text,
+          backgroundUrl: nextNode.backgroundUrl,
+          choices: nextNode.choices,
+        });
+      }
+    } else if (state.currentNodeId === 'nathaniel-classroom-meet') {
+      // Jogo de Justificativas do Nathaniel (Swipe)
+      // Após o jogo, avança para a organização dos papéis
+      const nextNodeId = 'nathaniel-classroom-help';
+      const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
+      if (nextNode) {
+        set({
+          currentNodeId: nextNodeId,
+          currentSpeaker: nextNode.speaker || nextNode.characterName,
+          currentText: nextNode.text,
+          backgroundUrl: nextNode.backgroundUrl,
+          choices: nextNode.choices,
+        });
       }
     }
   },

@@ -54,8 +54,7 @@ export const mockStory: Record<string, DialogueNode> = {
         affinityChanges: [
           { characterId: 'nathaniel', amount: 15 },
           { characterId: 'castiel', amount: -10 }
-        ],
-        minigame: 'swipe'
+        ]
       },
       {
         text: '"Algumas regras parecem apenas burocracia desnecessária, não acham?"',
@@ -711,7 +710,8 @@ export const mockStory: Record<string, DialogueNode> = {
         text: 'Sim, o Lysandre perdeu o bloco de notas dele. Viu algo?',
         nextNodeId: 'nathaniel-classroom-help',
         costPA: 10,
-        affinityChange: { characterId: 'nathaniel', amount: 15 }
+        affinityChange: { characterId: 'nathaniel', amount: 15 },
+        minigame: 'swipe'
       },
       {
         text: 'Estou investigando um mistério... Quer ser meu cúmplice?',
