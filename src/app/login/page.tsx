@@ -54,7 +54,7 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-screen w-screen flex flex-col justify-end items-center bg-[#070514] overflow-hidden font-sans">
+    <div className="relative min-h-[100dvh] w-full flex flex-col justify-center md:justify-end items-center bg-[#070514] overflow-y-auto font-sans p-4 md:p-0">
       
       {/* Background image base layer - fully visible and crisp */}
       <div 
@@ -65,33 +65,33 @@ export default function Login() {
       {/* Soft vignette overlay to enhance readability of inputs but keep characters fully visible */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/35 pointer-events-none" />
 
-      {/* Floating error notification above the bottom bar */}
+      {/* Floating error notification at the top of the screen */}
       <AnimatePresence>
         {error && (
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 15 }}
-            className="absolute bottom-24 z-20 bg-red-950/90 border border-red-500/50 text-red-200 text-xs sm:text-sm px-6 py-3 rounded-xl font-semibold shadow-2xl backdrop-blur-md max-w-md text-center"
+            exit={{ opacity: 0, y: -15 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md bg-red-950/95 border border-red-500/50 text-red-200 text-xs sm:text-sm px-6 py-3 rounded-xl font-semibold shadow-2xl backdrop-blur-md text-center"
           >
             ⚠️ {error}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Responsive, Glassmorphic Horizontal Login Bar at the bottom */}
+      {/* Responsive Glassmorphic Login Container: Centered Card on Mobile, Bottom Bar on Desktop */}
       <motion.div 
-        className="relative z-10 w-full bg-[#0d0921]/90 backdrop-blur-md border-t-2 border-pink-500/40 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] px-6 py-4 md:py-3.5"
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
+        className="relative z-10 w-full max-w-md md:max-w-none bg-[#0d0921]/90 backdrop-blur-md border border-pink-500/30 md:border-none md:border-t-2 md:border-pink-500/40 shadow-[0_10px_30px_rgba(0,0,0,0.5)] md:shadow-[0_-10px_30px_rgba(0,0,0,0.5)] p-6 md:px-6 md:py-3.5 rounded-2xl md:rounded-none"
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <form 
           onSubmit={handleSubmit}
-          className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"
+          className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 w-full"
         >
           {/* Welcome & Demo shortcut */}
-          <div className="flex flex-row md:flex-col items-center md:items-start justify-between w-full md:w-auto gap-2 border-b border-white/5 md:border-none pb-2 md:pb-0">
+          <div className="flex flex-row md:flex-col items-center md:items-start justify-between w-full md:w-auto gap-2 border-b border-white/5 md:border-none pb-3 md:pb-0">
             <div className="flex items-center gap-1.5">
               <span className="text-pink-400 font-extrabold text-sm sm:text-base tracking-wider drop-shadow-[0_0_8px_rgba(236,72,153,0.4)]">
                 LOGIN
@@ -111,9 +111,9 @@ export default function Login() {
           </div>
 
           {/* Input Fields Container */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto flex-1 max-w-3xl">
+          <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto flex-1 max-w-3xl">
             {/* Email Input */}
-            <div className="relative w-full sm:flex-1 group">
+            <div className="relative w-full md:flex-1 group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-pink-400 transition-colors">
                 <Mail className="w-4 h-4" />
               </div>
@@ -128,7 +128,7 @@ export default function Login() {
             </div>
 
             {/* Password Input */}
-            <div className="relative w-full sm:flex-1 group">
+            <div className="relative w-full md:flex-1 group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-pink-400 transition-colors">
                 <Lock className="w-4 h-4" />
               </div>
