@@ -8,6 +8,7 @@ interface SpriteCharacterProps {
   characterName: string;
   expression: string;
   position?: 'esquerda' | 'centro' | 'direita';
+  outfit?: string;
 }
 
 const POSITION_CLASSES = {
@@ -44,9 +45,14 @@ const EXPRESSION_ALIASES: Record<string, keyof typeof EXPRESSION_ANIMATE> = {
   triste: 'triste', sad: 'triste', crying: 'triste', timido: 'triste', timida: 'triste',
 };
 
-function getSpriteUrl(charKey: string, expr: string): string {
+function getSpriteUrl(charKey: string, expr: string, outfit: string = 'default'): string {
   switch (charKey) {
     case 'castiel':
+      if (outfit === 'gym') {
+        if (expr === 'bravo') return '/images/sprites/castiel_gym_bravo.png';
+        if (expr === 'sorrindo') return '/images/sprites/castiel_gym_sorrindo.png';
+        return '/images/sprites/castiel_gym.png';
+      }
       if (expr === 'bravo') return '/images/sprites/castiel_bravo.png';
       if (expr === 'sorrindo') return '/images/sprites/castiel_sorrindo.png';
       if (expr === 'provocando') return '/images/sprites/castiel_sorriso_pilantra.png';
@@ -97,12 +103,15 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
   characterName,
   expression,
   position = 'centro',
+  outfit = 'default',
 }) => {
   // ⚠️ ALL hooks must be before any conditional return
   const charKey = (characterName || '').toLowerCase().trim();
   const rawExpr = (expression || 'neutro').toLowerCase().trim();
   const mappedExpr = EXPRESSION_ALIASES[rawExpr] ?? 'neutro';
-  const imageUrl = getSpriteUrl(charKey, mappedExpr);
+  const imageUrl = getSpriteUrl(charKey, mappedExpr, outfit);
+  // Fallback URL (default outfit, same expression, then neutral)
+  const fallbackUrl = getSpriteUrl(charKey, mappedExpr, 'default') || getSpriteUrl(charKey, 'neutro', 'default');
 
   // Read store but don't use (kept for future scene bg use)
   useGameStore(state => state.backgroundUrl);
@@ -152,6 +161,13 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
           <img
             src={displayUrl}
             alt={characterName}
+            onError={(e) => {
+              // Graceful fallback: if outfit asset missing, use default sprite
+              const target = e.currentTarget;
+              if (target.src !== fallbackUrl && fallbackUrl) {
+                target.src = fallbackUrl;
+              }
+            }}
             style={{
               height: '100%',
               width: 'auto',

@@ -17,6 +17,10 @@ export const mockStory: Record<string, DialogueNode> = {
     speaker: 'Nathaniel',
     expression: 'bravo',
     characterName: 'Nathaniel',
+    sprites: [
+      { name: 'Nathaniel', expression: 'bravo', position: 'esquerda' },
+      { name: 'Castiel', expression: 'neutro', position: 'direita' }
+    ],
     backgroundUrl: 'corredor',
     cgUrl: '/images/cgs/fight.png',
     text: 'Castiel, eu já disse! Como representante dos alunos, eu exijo que você assine esta ficha de ausência ou terei que reportar à Diretora!',
@@ -27,6 +31,10 @@ export const mockStory: Record<string, DialogueNode> = {
     speaker: 'Castiel',
     expression: 'provocando',
     characterName: 'Castiel',
+    sprites: [
+      { name: 'Nathaniel', expression: 'bravo', position: 'esquerda' },
+      { name: 'Castiel', expression: 'provocando', position: 'direita' }
+    ],
     backgroundUrl: 'corredor',
     text: 'Reporte para quem você quiser, Nathaniel. Faça um bom proveito do seu papel de cão de guarda da escola.',
     next: 'confronto-veronica-intervenes'
@@ -40,13 +48,14 @@ export const mockStory: Record<string, DialogueNode> = {
     text: 'Os dois parecem prestes a brigar fisicamente. O que você decide dizer?',
     choices: [
       {
-        text: '"Isso realmente importa tanto assim? Talvez assinar logo poupe o tempo de todo mundo."',
+        text: '"As regras do colégio devem ser respeitadas. O Nathaniel está certo."',
         nextNodeId: 'confronto-nathaniel-path',
         costPA: 10,
         affinityChanges: [
           { characterId: 'nathaniel', amount: 15 },
           { characterId: 'castiel', amount: -10 }
-        ]
+        ],
+        minigame: 'swipe'
       },
       {
         text: '"Algumas regras parecem apenas burocracia desnecessária, não acham?"',
@@ -55,7 +64,8 @@ export const mockStory: Record<string, DialogueNode> = {
         affinityChanges: [
           { characterId: 'castiel', amount: 15 },
           { characterId: 'nathaniel', amount: -10 }
-        ]
+        ],
+        minigame: 'escape'
       },
       {
         text: '"Se vocês continuarem gritando aqui, a Diretora vai ouvir sem precisar de relatórios."',
@@ -135,7 +145,8 @@ export const mockStory: Record<string, DialogueNode> = {
         text: 'Eu adoraria uma leitura de cartas, Remi.',
         nextNodeId: 'remi-tarot-lovers',
         costPA: 10,
-        affinityChange: { characterId: 'remi', amount: 15 }
+        affinityChange: { characterId: 'remi', amount: 15 },
+        minigame: 'tarot'
       },
       {
         text: 'Desde que a carta revele que teremos um futuro juntos...',
@@ -185,6 +196,312 @@ export const mockStory: Record<string, DialogueNode> = {
     characterName: 'Narrador',
     backgroundUrl: 'sala_de_aula',
     text: 'Remi sorri enigmaticamente e recolhe suas cartas com sotaque francês cativante. Você se despede e caminha em direção ao pátio.',
+    next: 'lysandre-start'
+  },
+
+  // --- CENA EXTRA DINÂMICA: HARRY E LYSANDRE NO PÁTIO ---
+  // Veronica chega ao pátio e OBSERVA os dois conversando
+  'npc-patio-observe': {
+    id: 'npc-patio-observe',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    sprites: [
+      { name: 'Harry', expression: 'sorrindo', position: 'esquerda' },
+      { name: 'Lysandre', expression: 'neutro', position: 'direita' }
+    ],
+    backgroundUrl: 'patio',
+    text: 'Ao se aproximar do pátio das cerejeiras, você ouve duas vozes se sobrepondo. Harry e Lysandre parecem ter uma conversa animada perto das árvores.',
+    next: 'npc-patio-harry-fala'
+  },
+  'npc-patio-harry-fala': {
+    id: 'npc-patio-harry-fala',
+    speaker: 'Harry',
+    expression: 'sorrindo',
+    characterName: 'Harry',
+    sprites: [
+      { name: 'Harry', expression: 'sorrindo', position: 'esquerda' },
+      { name: 'Lysandre', expression: 'neutro', position: 'direita' }
+    ],
+    backgroundUrl: 'patio',
+    text: 'Cara, você não entende nada. Rock and roll não é só barulho — é emoção crua. É isso que os seus poemas tentam capturar, não é?',
+    next: 'npc-patio-lysandre-fala'
+  },
+  'npc-patio-lysandre-fala': {
+    id: 'npc-patio-lysandre-fala',
+    speaker: 'Lysandre',
+    expression: 'sorrindo',
+    characterName: 'Lysandre',
+    sprites: [
+      { name: 'Harry', expression: 'neutro', position: 'esquerda' },
+      { name: 'Lysandre', expression: 'sorrindo', position: 'direita' }
+    ],
+    backgroundUrl: 'patio',
+    text: 'É... de certa forma sim. A poesia é um solo de guitarra feito de palavras. Nunca tinha pensado assim, Harry. Você tem mais profundidade do que aparenta.',
+    next: 'npc-patio-veronica-interrupt'
+  },
+  'npc-patio-veronica-interrupt': {
+    id: 'npc-patio-veronica-interrupt',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio',
+    text: 'Os dois finalmente percebem sua presença. O que você faz?',
+    choices: [
+      {
+        text: '"Desculpem a interrupção — essa conversa era boa demais para não ouvir."',
+        nextNodeId: 'npc-patio-join-nice',
+        costPA: 5,
+        affinityChanges: [
+          { characterId: 'harry', amount: 5 },
+          { characterId: 'lysandre', amount: 8 }
+        ]
+      },
+      {
+        text: '"Rock e poesia? Interessante combinação..."',
+        nextNodeId: 'npc-patio-join-curious',
+        costPA: 0
+      }
+    ]
+  },
+  'npc-patio-join-nice': {
+    id: 'npc-patio-join-nice',
+    speaker: 'Harry',
+    expression: 'provocando',
+    characterName: 'Harry',
+    backgroundUrl: 'patio',
+    text: 'Heh. Uma nova fã. Eu aceito. — Harry sorri e acena com a cabeça.',
+    next: 'lysandre-start'
+  },
+  'npc-patio-join-curious': {
+    id: 'npc-patio-join-curious',
+    speaker: 'Lysandre',
+    expression: 'sorrindo',
+    characterName: 'Lysandre',
+    backgroundUrl: 'patio',
+    text: 'Veronica... você tem um olhar observador. Acho que vou escrever algo inspirado nisto agora mesmo.',
+    next: 'lysandre-start'
+  },
+
+  // --- CENA DINÂMICA: NATHANIEL E MAGGIE NA BIBLIOTECA ---
+  'npc-library-observe': {
+    id: 'npc-library-observe',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    sprites: [
+      { name: 'Nathaniel', expression: 'neutro', position: 'esquerda' },
+      { name: 'Maggie', expression: 'sorrindo', position: 'direita' }
+    ],
+    backgroundUrl: 'biblioteca',
+    text: 'Na biblioteca, Nathaniel e Maggie estudam lado a lado. Há uma tensão curiosa no ar — ou talvez seja só concentração.',
+    next: 'npc-library-maggie-fala'
+  },
+  'npc-library-maggie-fala': {
+    id: 'npc-library-maggie-fala',
+    speaker: 'Maggie',
+    expression: 'sorrindo',
+    characterName: 'Maggie',
+    sprites: [
+      { name: 'Nathaniel', expression: 'neutro', position: 'esquerda' },
+      { name: 'Maggie', expression: 'sorrindo', position: 'direita' }
+    ],
+    backgroundUrl: 'biblioteca',
+    text: 'Nathaniel, você já fez os exercícios de estatística? Porque eu travei no último e acho que errei tudo.',
+    next: 'npc-library-nathaniel-fala'
+  },
+  'npc-library-nathaniel-fala': {
+    id: 'npc-library-nathaniel-fala',
+    speaker: 'Nathaniel',
+    expression: 'sorrindo',
+    characterName: 'Nathaniel',
+    sprites: [
+      { name: 'Nathaniel', expression: 'sorrindo', position: 'esquerda' },
+      { name: 'Maggie', expression: 'neutro', position: 'direita' }
+    ],
+    backgroundUrl: 'biblioteca',
+    text: 'Deixa eu ver... Ah, erro de raciocínio na segunda parte. Não se preocupe, eu te explico. Você tem muito potencial, Maggie.',
+    next: 'npc-library-veronica-interrupt'
+  },
+  'npc-library-veronica-interrupt': {
+    id: 'npc-library-veronica-interrupt',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'biblioteca',
+    text: 'Você percebe que interrompeu um momento privado de estudo. O que faz?',
+    choices: [
+      {
+        text: '"Posso sentar? Eu também estou perdida em estatística."',
+        nextNodeId: 'npc-library-join',
+        costPA: 5,
+        affinityChanges: [
+          { characterId: 'nathaniel', amount: 10 },
+          { characterId: 'maggie', amount: 8 }
+        ]
+      },
+      {
+        text: 'Pegar um livro discretamente e se afastar.',
+        nextNodeId: 'npc-library-leave',
+        costPA: 0
+      }
+    ]
+  },
+  'npc-library-join': {
+    id: 'npc-library-join',
+    speaker: 'Nathaniel',
+    expression: 'sorrindo',
+    characterName: 'Nathaniel',
+    backgroundUrl: 'biblioteca',
+    text: 'Claro, Veronica! Quanto mais, melhor. Aqui, sente-se conosco.',
+    next: 'lysandre-lost-notebook'
+  },
+  'npc-library-leave': {
+    id: 'npc-library-leave',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'biblioteca',
+    text: 'Você se afasta silenciosamente, deixando os dois em paz.',
+    next: 'lysandre-lost-notebook'
+  },
+
+  // --- CENA DINÂMICA: CASTIEL E HARRY NA QUADRA ---
+  'npc-quadra-observe': {
+    id: 'npc-quadra-observe',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    sprites: [
+      { name: 'Castiel', expression: 'provocando', position: 'esquerda' },
+      { name: 'Harry', expression: 'bravo', position: 'direita' }
+    ],
+    backgroundUrl: 'quadra',
+    text: 'Na quadra, Castiel encosta na parede de braços cruzados enquanto Harry gesticulam animadamente. Parece uma discussão sobre música — e está ficando acalorada.',
+    next: 'npc-quadra-castiel-fala'
+  },
+  'npc-quadra-castiel-fala': {
+    id: 'npc-quadra-castiel-fala',
+    speaker: 'Castiel',
+    expression: 'provocando',
+    characterName: 'Castiel',
+    sprites: [
+      { name: 'Castiel', expression: 'provocando', position: 'esquerda' },
+      { name: 'Harry', expression: 'bravo', position: 'direita' }
+    ],
+    backgroundUrl: 'quadra',
+    text: 'Sério, Harry? Blues acústico? Isso é para velho. Punk rock tem muito mais energia. Você parece um chimarrão comparado a uma Red Bull.',
+    next: 'npc-quadra-harry-fala'
+  },
+  'npc-quadra-harry-fala': {
+    id: 'npc-quadra-harry-fala',
+    speaker: 'Harry',
+    expression: 'bravo',
+    characterName: 'Harry',
+    sprites: [
+      { name: 'Castiel', expression: 'neutro', position: 'esquerda' },
+      { name: 'Harry', expression: 'bravo', position: 'direita' }
+    ],
+    backgroundUrl: 'quadra',
+    text: 'Não confunda velocidade com qualidade, Castiel. Tocar rápido qualquer um faz. Tocar com alma é outra história.',
+    next: 'npc-quadra-veronica-interrupt'
+  },
+  'npc-quadra-veronica-interrupt': {
+    id: 'npc-quadra-veronica-interrupt',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'quadra',
+    text: 'Os dois olham para você ao mesmo tempo. Silêncio. O que você diz?',
+    choices: [
+      {
+        text: '"Castiel tem razão. Punk rock é libertador."',
+        nextNodeId: 'npc-quadra-team-castiel',
+        costPA: 5,
+        affinityChanges: [
+          { characterId: 'castiel', amount: 15 },
+          { characterId: 'harry', amount: -5 }
+        ]
+      },
+      {
+        text: '"Harry faz sentido. Qualidade supera velocidade."',
+        nextNodeId: 'npc-quadra-team-harry',
+        costPA: 5,
+        affinityChanges: [
+          { characterId: 'harry', amount: 15 },
+          { characterId: 'castiel', amount: -5 }
+        ]
+      },
+      {
+        text: '"Podem parar de brigar? Os dois estilos têm valor."',
+        nextNodeId: 'npc-quadra-peace',
+        costPA: 10,
+        affinityChanges: [
+          { characterId: 'castiel', amount: 5 },
+          { characterId: 'harry', amount: 5 }
+        ]
+      }
+    ]
+  },
+  'npc-quadra-team-castiel': {
+    id: 'npc-quadra-team-castiel',
+    speaker: 'Castiel',
+    expression: 'sorrindo',
+    characterName: 'Castiel',
+    backgroundUrl: 'quadra',
+    text: 'Viu só, Harry? Pelo menos alguém tem gosto nessa escola. — Castiel te lança um sorriso de canto.',
+    next: 'harry-start'
+  },
+  'npc-quadra-team-harry': {
+    id: 'npc-quadra-team-harry',
+    speaker: 'Harry',
+    expression: 'sorrindo',
+    characterName: 'Harry',
+    backgroundUrl: 'quadra',
+    text: 'Boa resposta. Vem ouvir meu último riff quando tiver tempo, Veronica.',
+    next: 'harry-start'
+  },
+  'npc-quadra-peace': {
+    id: 'npc-quadra-peace',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'quadra',
+    text: 'Os dois ficam em silêncio por um segundo, trocam um olhar... e dão uma risada ao mesmo tempo. Parece que você desarmou a tensão.',
+    next: 'harry-start'
+  },
+
+  // --- CENA EXTRA: LYSANDRE E OS POEMAS ---
+  'lysandre-start': {
+    id: 'lysandre-start',
+    speaker: 'Lysandre',
+    expression: 'neutro',
+    characterName: 'Lysandre',
+    backgroundUrl: 'patio',
+    text: 'Oh... Me desculpe. Eu estava tão distraído compondo que não vi o vento levar as minhas anotações... Você poderia me ajudar a reuni-las?',
+    choices: [
+      {
+        text: 'Claro, Lysandre! Deixe-me ajudar a juntar essas páginas.',
+        nextNodeId: 'lysandre-end',
+        costPA: 5,
+        affinityChange: { characterId: 'lysandre', amount: 10 },
+        minigame: 'memory'
+      },
+      {
+        text: 'Estou com um pouco de pressa agora, sinto muito.',
+        nextNodeId: 'harry-start',
+        costPA: 0,
+        affinityChange: { characterId: 'lysandre', amount: -5 }
+      }
+    ]
+  },
+  'lysandre-end': {
+    id: 'lysandre-end',
+    speaker: 'Lysandre',
+    expression: 'sorrindo',
+    characterName: 'Lysandre',
+    backgroundUrl: 'patio',
+    text: 'Muito obrigado, Veronica. Esses poemas são muito importantes para mim... especialmente os que escrevi inspirados pela arte daquela garota.',
     next: 'harry-start'
   },
 

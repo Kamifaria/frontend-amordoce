@@ -26,6 +26,10 @@ import { CGOverlay } from './CGOverlay';
 import { EpisodeFinishedOverlay } from './EpisodeFinishedOverlay';
 import { GuitarMinigame } from './minigames/GuitarMinigame';
 import { PaintingMinigame } from './minigames/PaintingMinigame';
+import { LysandreMemoryGame } from './minigames/LysandreMemoryGame';
+import { RemiTarotGame } from './minigames/RemiTarotGame';
+import { NathanielSwipeGame } from './minigames/NathanielSwipeGame';
+import { CastielEscapeGame } from './minigames/CastielEscapeGame';
 import { Choice } from '@/shared/types';
 import { mockStory } from '@/mock/storyData';
 
@@ -198,12 +202,26 @@ export const GameScreen: React.FC = () => {
 
           {/* Background Scene — SpriteCharacter is inside so PNG transparency shows the scene bg */}
           <Cenario backgroundUrl={backgroundUrl}>
-            {currentNodeId !== 'demo-end-loop' && activeNode && activeNode.characterName && (
-              <SpriteCharacter
-                characterName={activeNode.characterName}
-                expression={activeNode.expression}
-                position="centro"
-              />
+            {currentNodeId !== 'demo-end-loop' && activeNode && (
+              <>
+                {activeNode.sprites ? (
+                  activeNode.sprites.map((sprite, idx) => (
+                    <SpriteCharacter
+                      key={`${sprite.name}-${idx}`}
+                      characterName={sprite.name}
+                      expression={sprite.expression}
+                      position={sprite.position}
+                      outfit={sprite.outfit}
+                    />
+                  ))
+                ) : activeNode.characterName ? (
+                  <SpriteCharacter
+                    characterName={activeNode.characterName}
+                    expression={activeNode.expression}
+                    position="centro"
+                  />
+                ) : null}
+              </>
             )}
           </Cenario>
 
@@ -246,6 +264,10 @@ export const GameScreen: React.FC = () => {
           {/* Minigame Overlay */}
           {activeMinigame === 'guitar' && <GuitarMinigame />}
           {activeMinigame === 'painting' && <PaintingMinigame />}
+          {activeMinigame === 'memory' && <LysandreMemoryGame />}
+          {activeMinigame === 'tarot' && <RemiTarotGame />}
+          {activeMinigame === 'swipe' && <NathanielSwipeGame />}
+          {activeMinigame === 'escape' && <CastielEscapeGame />}
 
           {/* Map Overlay */}
           <MapOverlay isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} />

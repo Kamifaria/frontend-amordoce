@@ -19,6 +19,12 @@ export interface DialogueNode {
   speaker: string;
   expression: string; // ex: 'sorrindo', 'bravo', 'triste', 'neutro', 'none'
   characterName: string; // ex: 'Castiel', 'Nathaniel', 'Diretora', 'Narrador'
+  sprites?: {
+    name: string;
+    expression: string;
+    position: 'esquerda' | 'centro' | 'direita';
+    outfit?: string;
+  }[];
   backgroundUrl: string;
   text: string;
   choices?: Choice[];

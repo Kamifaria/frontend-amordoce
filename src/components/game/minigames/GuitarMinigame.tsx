@@ -2,18 +2,19 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Music, X, Heart, Star } from 'lucide-react';
+import { Music, Heart } from 'lucide-react';
 import { useGameStore } from '../../../store/useGameStore';
 
 interface Chord {
   id: string;
   x: number; // percentage 10-90
-  y: number; // percentage 20-80
+  stringIndex: number; // 0 to 3 (4 strings)
   label: string;
 }
 
-const SONG_DURATION = 90; // 1:30 minutos
+const SONG_DURATION = 35; // Reduzido para melhor ritmo
 const AUDIO_SRC = '/audio/Harry Styles - As It Was (Official Video).mp3';
+const STRING_COUNT = 4;
 
 export const GuitarMinigame: React.FC = () => {
   const { endMinigame } = useGameStore();
@@ -21,6 +22,7 @@ export const GuitarMinigame: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(SONG_DURATION);
   const [gameState, setGameState] = useState<'playing' | 'finished'>('playing');
   const [activeChords, setActiveChords] = useState<Chord[]>([]);
+  const [vibratingStrings, setVibratingStrings] = useState<Record<number, boolean>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize Audio
@@ -32,7 +34,7 @@ export const GuitarMinigame: React.FC = () => {
     const playPromise = audioRef.current.play();
     if (playPromise !== undefined) {
       playPromise.catch((err) => {
-        console.warn('Auto-play prevent default for audio, user interaction might be needed', err);
+        console.warn('Auto-play prevent default for audio', err);
       });
     }
 
@@ -48,7 +50,6 @@ export const GuitarMinigame: React.FC = () => {
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Timer countdown
     const timerInterval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -60,29 +61,26 @@ export const GuitarMinigame: React.FC = () => {
       });
     }, 1000);
 
-    // Spawner: Every 1.5 seconds, spawn a new chord
     const spawnInterval = setInterval(() => {
       const labels = ['C', 'G', 'D', 'Am', 'Em', 'F'];
       const newChord: Chord = {
         id: Math.random().toString(36).substring(2, 9),
-        x: 10 + Math.random() * 80, // 10% to 90%
-        y: 20 + Math.random() * 60, // 20% to 80%
+        x: 15 + Math.random() * 70, // 15% to 85%
+        stringIndex: Math.floor(Math.random() * STRING_COUNT),
         label: labels[Math.floor(Math.random() * labels.length)],
       };
 
       setActiveChords((prev) => {
-        // Keep max 5 chords on screen at a time
         const next = [...prev, newChord];
         if (next.length > 5) return next.slice(next.length - 5);
         return next;
       });
 
-      // Automatically remove this chord after 2.5 seconds if not clicked (miss)
       setTimeout(() => {
         setActiveChords((current) => current.filter((c) => c.id !== newChord.id));
       }, 2500);
 
-    }, 1200);
+    }, 1000); // Ligeiramente mais rápido
 
     return () => {
       clearInterval(timerInterval);
@@ -91,14 +89,20 @@ export const GuitarMinigame: React.FC = () => {
   }, [gameState]);
 
   // Handle chord tap
-  const handleTap = (id: string) => {
+  const handleTap = (id: string, stringIndex: number) => {
     if (gameState !== 'playing') return;
     
-    // Remove the chord that was tapped
+    // Remover o acorde tocado
     setActiveChords((prev) => prev.filter((c) => c.id !== id));
     
-    // Increase score
+    // Aumentar pontuação
     setScore((s) => s + 10);
+
+    // Ativar vibração na corda
+    setVibratingStrings((prev) => ({ ...prev, [stringIndex]: true }));
+    setTimeout(() => {
+      setVibratingStrings((prev) => ({ ...prev, [stringIndex]: false }));
+    }, 300); // Duração da vibração
   };
 
   const finishGame = () => {
@@ -107,95 +111,112 @@ export const GuitarMinigame: React.FC = () => {
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="absolute inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md overflow-hidden"
+      initial={{ y: 200, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 200, opacity: 0 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="absolute bottom-0 left-0 right-0 z-[100] h-64 md:h-72 bg-gradient-to-t from-black/95 to-black/80 backdrop-blur-md border-t-4 border-[#3b2d59] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col"
     >
-      <div className="relative w-full h-full max-w-lg md:max-h-[90vh] md:rounded-3xl border-[#1e1a3a] md:border-4 bg-gradient-to-b from-[#120e24] to-[#0a0715] flex flex-col overflow-hidden shadow-2xl">
-        
-        {/* HUD */}
-        <div className="flex justify-between items-center p-6 z-10 bg-black/40 border-b border-white/10 shrink-0">
-          <div className="flex flex-col">
-            <span className="text-white font-black text-3xl tracking-wider">{score} pts</span>
-            <span className="text-sm font-bold text-pink-400">Toque nos Acordes!</span>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-slate-300 text-sm font-bold">Tempo</span>
-            <span className={`text-2xl font-black ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
-              0{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-            </span>
-          </div>
+      {/* HUD Minimizado */}
+      <div className="flex justify-between items-center px-6 py-2 bg-black/40 border-b border-white/10">
+        <div className="flex items-center gap-4">
+          <span className="text-pink-400 font-bold text-xl tracking-wider">Pontos: {score}</span>
         </div>
+        <div className="flex items-center gap-2">
+          <span className="text-slate-300 text-sm font-bold">Tempo:</span>
+          <span className={`text-xl font-black ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+            0{Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+          </span>
+        </div>
+      </div>
 
-        {/* Play Area */}
-        <div className="flex-1 relative w-full h-full p-4 overflow-hidden touch-none select-none">
-          {/* Background Decor */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-            <Music size={200} />
+      {/* Play Area (Braço do Violão) */}
+      <div className="flex-1 relative w-full h-full py-4 overflow-hidden touch-none select-none flex flex-col justify-evenly px-4 md:px-12 bg-[url('/img/wood-texture.png')] bg-cover bg-center">
+        {/* Overlay escuro pro violão */}
+        <div className="absolute inset-0 bg-[#2a1708]/80 mix-blend-multiply pointer-events-none" />
+
+        {/* Cordas */}
+        {Array.from({ length: STRING_COUNT }).map((_, i) => (
+          <div key={i} className="relative w-full h-2 flex items-center z-0">
+            {/* A linha visual da corda */}
+            <motion.div 
+              animate={
+                vibratingStrings[i] 
+                  ? { y: [0, -4, 4, -2, 2, 0], filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'] } 
+                  : { y: 0, filter: 'blur(0px)' }
+              }
+              transition={{ duration: 0.3 }}
+              className="w-full h-[3px] bg-gradient-to-b from-gray-300 via-gray-100 to-gray-400 rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+            />
           </div>
+        ))}
 
-          <AnimatePresence>
-            {activeChords.map((chord) => (
+        {/* Acordes */}
+        <AnimatePresence>
+          {activeChords.map((chord) => {
+            // Calcular posição Y exata com base no stringIndex
+            // Como usamos justify-evenly, as cordas estão distribuídas.
+            // A posição da corda i em um container com justify-evenly e STRING_COUNT cordas é algo próximo a:
+            const topPercent = (100 / (STRING_COUNT + 1)) * (chord.stringIndex + 1);
+
+            return (
               <motion.button
                 key={chord.id}
-                initial={{ scale: 0, opacity: 0, rotate: -30 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                exit={{ scale: 0, opacity: 0, rotate: 30 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                onClick={() => handleTap(chord.id)}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                onClick={() => handleTap(chord.id, chord.stringIndex)}
                 onTouchStart={(e) => {
-                  e.preventDefault(); // prevent double tap zoom/click
-                  handleTap(chord.id);
+                  e.preventDefault();
+                  handleTap(chord.id, chord.stringIndex);
                 }}
-                className="absolute w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 shadow-[0_0_20px_rgba(236,72,153,0.6)] flex items-center justify-center active:scale-90 transition-transform z-10"
+                className="absolute w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 shadow-[0_0_15px_rgba(236,72,153,0.8)] flex items-center justify-center active:scale-90 transition-transform z-10 border-2 border-white/20"
                 style={{
                   left: `${chord.x}%`,
-                  top: `${chord.y}%`,
-                  transform: 'translate(-50%, -50%)'
+                  top: `calc(${topPercent}% - 28px)`, // centralizar no eixo Y (28px = metade do h-14)
                 }}
               >
                 <div className="flex flex-col items-center">
-                  <Heart size={24} className="text-white fill-white mb-1 opacity-50" />
-                  <span className="text-white font-bold text-2xl drop-shadow-md">{chord.label}</span>
+                  <span className="text-white font-black text-xl md:text-2xl drop-shadow-md">{chord.label}</span>
                 </div>
               </motion.button>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* Finished Overlay */}
-        {gameState === 'finished' && (
-          <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="flex flex-col items-center"
-            >
-              <Music size={64} className="text-pink-400 mb-4" />
-              <h2 className="text-4xl font-black text-white mb-2">Música Finalizada!</h2>
-              <p className="text-slate-300 mb-8 font-medium text-lg">O Harry curtiu o seu estilo!</p>
-              
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 w-full max-w-xs mb-10 shadow-lg">
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-slate-400 text-lg uppercase tracking-widest font-bold">Sua Pontuação</span>
-                  <span className="text-pink-400 font-black text-6xl drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
-                    {score}
-                  </span>
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={finishGame}
-                className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-4 px-10 rounded-2xl shadow-lg shadow-pink-500/20 text-lg tracking-wide uppercase"
-              >
-                Continuar História
-              </motion.button>
-            </motion.div>
-          </div>
-        )}
+            );
+          })}
+        </AnimatePresence>
       </div>
+
+      {/* Finished Overlay */}
+      {gameState === 'finished' && (
+        <div className="absolute inset-0 z-20 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center border-t-4 border-pink-500">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="flex flex-col items-center w-full"
+          >
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-2 flex items-center gap-3">
+              <Music className="text-pink-400" />
+              Música Finalizada!
+            </h2>
+            
+            <div className="bg-white/10 border border-white/20 rounded-xl p-4 my-4 flex items-center gap-6">
+              <div className="text-slate-300 text-lg uppercase tracking-widest font-bold">Pontuação</div>
+              <div className="text-pink-400 font-black text-5xl drop-shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+                {score}
+              </div>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={finishGame}
+              className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-pink-500/20 text-lg tracking-wide uppercase mt-2"
+            >
+              Continuar História
+            </motion.button>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };
