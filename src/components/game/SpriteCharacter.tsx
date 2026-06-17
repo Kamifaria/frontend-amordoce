@@ -145,7 +145,7 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
 
   return (
     <div
-      className={`absolute bottom-0 z-10 pointer-events-none ${POSITION_CLASSES[position]} ${WIDTH_CLASSES[position]}`}
+      className={`absolute bottom-0 z-10 pointer-events-none transition-all duration-300 max-md:translate-y-[-10%] max-md:scale-[1.25] ${POSITION_CLASSES[position]} ${WIDTH_CLASSES[position]}`}
       style={{ height: '100%' }}
     >
       <AnimatePresence mode="wait">

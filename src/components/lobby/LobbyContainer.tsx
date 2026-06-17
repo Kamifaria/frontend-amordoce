@@ -27,7 +27,7 @@ export const LobbyContainer: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-[#070514] overflow-y-auto overflow-x-hidden font-sans relative pb-12 flex flex-col items-center">
+    <div className="h-[100dvh] w-screen bg-[#070514] overflow-y-auto overflow-x-hidden font-sans relative pb-12 flex flex-col items-center">
       {/* Absolute background image with lower opacity for ambient atmosphere */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-30 blur-sm scale-102 pointer-events-none"
