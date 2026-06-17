@@ -30,6 +30,7 @@ import { LysandreMemoryGame } from './minigames/LysandreMemoryGame';
 import { RemiTarotGame } from './minigames/RemiTarotGame';
 import { NathanielSwipeGame } from './minigames/NathanielSwipeGame';
 import { CastielEscapeGame } from './minigames/CastielEscapeGame';
+import { ClothingShop } from './ClothingShop';
 import { Choice } from '@/shared/types';
 import { mockStory } from '@/mock/storyData';
 
@@ -58,7 +59,8 @@ export const GameScreen: React.FC = () => {
     affinityNotifications,
     initStory,
     storyStage,
-    setView
+    setView,
+    currentLocationId
   } = useGameStore();
 
   // Load game state on mount
@@ -274,6 +276,9 @@ export const GameScreen: React.FC = () => {
 
           {/* CG Overlay */}
           <CGOverlay cgUrl={activeCG?.url || ''} cgId={activeCG?.id || ''} isOpen={!!activeCG} onClose={() => setActiveCG(null)} />
+
+          {/* Clothing Shop Overlay */}
+          {currentLocationId === 'shop' && <ClothingShop />}
         </GameContainer>
       ) : (
         <div className="flex flex-col items-center gap-4">

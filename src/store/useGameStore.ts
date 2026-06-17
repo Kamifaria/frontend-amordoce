@@ -127,6 +127,7 @@ const saveLocalProgress = (stateData: {
   lastDailyDraw?: number | null;
   equippedOutfit?: EquippedOutfit;
   metCharacters?: string[];
+  unlockedItems?: string[];
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
@@ -143,6 +144,7 @@ const saveLocalProgress = (stateData: {
       ...prevParsed,
       ...stateData,
       metCharacters: stateData.metCharacters || prevParsed.metCharacters || [],
+      unlockedItems: stateData.unlockedItems || prevParsed.unlockedItems || [],
     };
     localStorage.setItem('local_game_state', JSON.stringify(merged));
   }
@@ -249,6 +251,10 @@ interface GameState {
   collectedItems: string[];
   achievementQueue: Achievement[];
 
+  // Closet & Shop
+  unlockedItems: string[];
+  buyOutfit: (itemId: string, cost: number) => boolean;
+
   // Gameplay Enhancements Actions
   unlockAchievement: (id: string) => void;
   dismissAchievement: () => void;
@@ -288,6 +294,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   unlockedEpisodes: [1],
   activeEpisodeId: 1,
   unlockedCGs: [],
+  unlockedItems: ['long-purple-goth', 'black-corset', 'skirt-chains'],
   storyStage: 'INTRO',
   cluesFound: [],
   currentLocationId: 'school',
@@ -300,9 +307,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentView: 'lobby',
   lastDailyDraw: null,
   equippedOutfit: {
-    hairstyle: 'long-pink',
-    top: 'school-uniform-top',
-    bottom: 'skirt-pink',
+    hairstyle: 'long-purple-goth',
+    top: 'black-corset',
+    bottom: 'skirt-chains',
   },
 
   setView: (view) => set({ currentView: view }),
@@ -705,6 +712,7 @@ export const useGameStore = create<GameState>((set, get) => ({
               chatThreads: parsed.chatThreads || [],
               metCharacters: parsed.metCharacters || [],
               savedPaintings: parsed.savedPaintings || [],
+              unlockedItems: parsed.unlockedItems || get().unlockedItems,
             });
             set({ isLoading: false });
             return;
@@ -1063,17 +1071,22 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (state.currentNodeId === 'harry-start') {
       let nextNodeId = 'harry-guitar-nice';
       let affinityChange = 15;
+      let goldReward = 5;
       
       if (score >= 400) {
         nextNodeId = 'harry-guitar-bold';
         affinityChange = 20;
+        goldReward = 20;
+      } else if (score >= 150) {
+        goldReward = 10;
       } else if (score < 150) {
         nextNodeId = 'harry-guitar-rude';
         affinityChange = -15;
       }
 
-      // Automatically apply affinity and advance to the proper node
+      // Automatically apply affinity and gold
       set((s) => ({
+        playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
           harry: (s.affinities.harry || 0) + affinityChange,
@@ -1093,13 +1106,18 @@ export const useGameStore = create<GameState>((set, get) => ({
     } else if (state.currentNodeId === 'kami-guitar-secret') {
       let nextNodeId = 'kami-guitar-lose';
       let affinityChange = -5;
+      let goldReward = 5;
       
       if (score >= 400) {
         nextNodeId = 'kami-guitar-win';
         affinityChange = 25;
+        goldReward = 20;
+      } else if (score >= 150) {
+        goldReward = 10;
       }
 
       set((s) => ({
+        playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
           kami: (s.affinities.kami || 0) + affinityChange,
@@ -1118,17 +1136,18 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     } else if (state.currentNodeId === 'kami-art-start') {
       // Jogo de Pintura (Mixagem de Cores)
-      // Score alto (>= 80% de precisão) -> kami-paint-success
-      // Score baixo (< 80%) -> kami-paint-fail
       let nextNodeId = 'kami-paint-success';
       let affinityChange = 25;
+      let goldReward = 15;
       
       if (score < 80) {
         nextNodeId = 'kami-paint-fail';
         affinityChange = -10;
+        goldReward = 5;
       }
 
       set((s) => ({
+        playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
           kami: (s.affinities.kami || 0) + affinityChange,
@@ -1147,38 +1166,79 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     } else if (state.currentNodeId === 'remi-start') {
       // Jogo de Tarot do Remi
-      // Vence se escolheu a carta lovers (score === 100) -> remi-tarot-lovers
-      // Perde caso contrário (score === 0) -> remi-tarot-tower
       const nextNodeId = score === 100 ? 'remi-tarot-lovers' : 'remi-tarot-tower';
+      const goldReward = score === 100 ? 15 : 5;
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set({
+        set((s) => ({
+          playerGold: s.playerGold + goldReward,
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
           currentText: nextNode.text,
           backgroundUrl: nextNode.backgroundUrl,
           choices: nextNode.choices,
-        });
+        }));
       }
     } else if (state.currentNodeId === 'nathaniel-classroom-meet') {
       // Jogo de Justificativas do Nathaniel (Swipe)
-      // Após o jogo, avança para a organização dos papéis
       const nextNodeId = 'nathaniel-classroom-help';
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set({
+        set((s) => ({
+          playerGold: s.playerGold + 10,
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
           currentText: nextNode.text,
           backgroundUrl: nextNode.backgroundUrl,
           choices: nextNode.choices,
-        });
+        }));
       }
     }
   },
 
   addPA: (amount) => set((state) => ({ playerPA: state.playerPA + amount })),
   addGold: (amount) => set((state) => ({ playerGold: state.playerGold + amount })),
+
+  buyOutfit: (itemId, cost) => {
+    const state = get();
+    if (state.playerGold < cost) {
+      set({ errorMsg: 'Gold Insuficiente' });
+      state.playSound('choice');
+      return false;
+    }
+    if (state.unlockedItems.includes(itemId)) {
+      set({ errorMsg: 'Você já possui este item' });
+      state.playSound('choice');
+      return false;
+    }
+    
+    const nextGold = state.playerGold - cost;
+    const nextUnlocked = [...state.unlockedItems, itemId];
+    
+    set({
+      playerGold: nextGold,
+      unlockedItems: nextUnlocked,
+    });
+    
+    state.playSound('heart');
+    
+    saveLocalProgress({
+      currentNodeId: state.currentNodeId,
+      playerPA: state.playerPA,
+      playerGold: nextGold,
+      affinities: state.affinities,
+      unlockedTips: state.unlockedTips,
+      unlockedEpisodes: state.unlockedEpisodes,
+      activeEpisodeId: state.activeEpisodeId,
+      unlockedCGs: state.unlockedCGs,
+      storyStage: state.storyStage,
+      cluesFound: state.cluesFound,
+      currentLocationId: state.currentLocationId,
+      unlockedItems: nextUnlocked,
+    });
+    
+    return true;
+  },
 
   togglePhone: () => {
     get().playSound('click');
@@ -1660,6 +1720,31 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     get().playSound('click');
+    const nextPA = get().playerPA - 10;
+
+    if (locationId === 'shop') {
+      set({
+        currentLocationId: 'shop',
+        playerPA: nextPA,
+      });
+
+      saveLocalProgress({
+        currentNodeId: get().currentNodeId,
+        playerPA: nextPA,
+        playerGold: get().playerGold,
+        affinities: get().affinities,
+        unlockedTips: get().unlockedTips,
+        unlockedEpisodes: get().unlockedEpisodes,
+        activeEpisodeId: get().activeEpisodeId,
+        unlockedCGs: get().unlockedCGs,
+        storyStage: get().storyStage,
+        cluesFound: get().cluesFound,
+        currentLocationId: 'shop',
+        unlockedItems: get().unlockedItems,
+      });
+      return;
+    }
+
     let entryNodeId = 'start';
     if (locationId === 'patio') {
       entryNodeId = 'search-courtyard';
@@ -1673,7 +1758,6 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     const currentStoryMap = get().storyTree['start'] ? get().storyTree : mockStory;
     const entryNode = currentStoryMap[entryNodeId];
-    const nextPA = get().playerPA - 10;
 
     if (entryNode) {
       set({
@@ -1698,6 +1782,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         storyStage: get().storyStage,
         cluesFound: get().cluesFound,
         currentLocationId: locationId,
+        unlockedItems: get().unlockedItems,
       });
     }
   },

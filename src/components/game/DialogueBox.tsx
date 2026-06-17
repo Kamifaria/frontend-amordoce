@@ -92,7 +92,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
   return (
     <div 
       onClick={handleBoxClick}
-      className="absolute bottom-0 md:bottom-4 left-1/2 z-20 w-full md:w-[95%] -translate-x-1/2 cursor-pointer select-none rounded-none rounded-t-2xl md:rounded-2xl border border-b-0 md:border-b border-pink-500/35 bg-[#120e24]/90 md:bg-[#120e24]/85 p-4 px-5 md:p-5 shadow-[0_0_25px_rgba(219,39,119,0.15)] shadow-black/60 backdrop-blur-md transition-all hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(219,39,119,0.25)]"
+      className="absolute bottom-0 md:bottom-4 left-1/2 z-20 w-full md:w-[95%] -translate-x-1/2 cursor-pointer select-none rounded-none rounded-t-2xl md:rounded-2xl border border-b-0 md:border-b border-pink-500/35 bg-[#120e24]/90 md:bg-[#120e24]/85 p-4 px-5 md:p-5 shadow-[0_0_25px_rgba(219,39,119,0.15)] shadow-black/60 backdrop-blur-md transition-all hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(219,39,119,0.25)] max-h-[85vh] md:max-h-none overflow-y-auto scrollbar-thin"
     >
       {/* Speaker Tag */}
       {!isNarrator && (
@@ -102,13 +102,13 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
       )}
 
       {/* Narrative/Speech Area */}
-      <div className={`mt-1 md:mt-1.5 min-h-[60px] md:min-h-[65px] text-slate-100 text-[15px] md:text-[17px] leading-relaxed ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
+      <div className={`mt-1.5 md:mt-2 min-h-[85px] md:min-h-[70px] text-slate-100 text-[16px] md:text-[17px] leading-relaxed pb-4 ${isNarrator ? 'italic text-pink-200/90 font-medium' : ''}`}>
         {displayedText}
       </div>
 
       {/* Choice Buttons rendered inline inside dialogue box */}
       {isChoiceActive && !isTyping && choices && onSelectChoice && (
-        <div className="mt-4 flex flex-col gap-2 w-full pointer-events-auto">
+        <div className="mt-3 md:mt-4 flex flex-col gap-1.5 md:gap-2 w-full max-h-[160px] md:max-h-[280px] overflow-y-auto pr-1 pointer-events-auto scrollbar-thin">
           {choices.map((choice, index) => {
             const hasEnoughPA = playerPA >= choice.costPA;
             return (
@@ -119,7 +119,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
                   e.stopPropagation();
                   onSelectChoice(choice);
                 }}
-                className={`w-full text-left px-4.5 py-3.5 rounded-xl border text-xs font-semibold flex justify-between items-center transition-all ${
+                className={`w-full text-left px-3.5 py-2.5 md:px-4.5 md:py-3.5 rounded-xl border text-xs md:text-sm font-semibold flex justify-between items-center transition-all ${
                   hasEnoughPA
                     ? 'cursor-pointer border-pink-500/25 bg-white/5 hover:bg-pink-500/10 hover:border-pink-500/60 text-slate-100'
                     : 'cursor-not-allowed border-red-500/15 bg-red-950/10 text-slate-500'

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, School, TreePine, MapPin, Dumbbell, Palette, Film, Lock } from 'lucide-react';
+import { X, School, TreePine, MapPin, Dumbbell, Palette, Film, Lock, ShoppingBag } from 'lucide-react';
 import { useGameStore } from '@/store/useGameStore';
 
 interface MapOverlayProps {
@@ -62,6 +62,15 @@ export const MapOverlay: React.FC<MapOverlayProps> = ({ isOpen, onClose }) => {
       userColor: 'text-emerald-500 bg-emerald-500/15 border-emerald-500/25',
       isLocked: storyStage !== 'DATE_CINEMA',
       hint: 'Chegue na afinidade 50 e avance na história',
+    },
+    {
+      id: 'shop',
+      name: 'Loja de Roupas',
+      desc: 'Comprar Looks Dark',
+      icon: <ShoppingBag size={24} />,
+      color: 'text-pink-400 bg-pink-500/20 border-pink-500/25',
+      userColor: 'text-pink-500 bg-pink-500/15 border-pink-500/25',
+      isLocked: false,
     },
   ];
 

@@ -13,28 +13,32 @@ interface ClosetItem {
 }
 
 const HAIRSTYLES: ClosetItem[] = [
-  { id: 'long-pink', name: 'Longo Rosa', preview: '💇‍♀️' },
-  { id: 'short-brunette', name: 'Curto Castanho', preview: '💇' },
-  { id: 'side-braid', name: 'Trança Lateral', preview: '👱‍♀️' },
+  { id: 'long-purple-goth', name: 'Roxo Gótico (Veronica)', preview: '💜' },
+  { id: 'short-black-grunge', name: 'Curto Preto Grunge', preview: '🖤' },
+  { id: 'punk-braids', name: 'Tranças Punk', preview: '💈' },
 ];
 
 const TOPS: ClosetItem[] = [
-  { id: 'school-uniform-top', name: 'Blazer Escolar', preview: '👚' },
-  { id: 'casual-tshirt', name: 'Camiseta Casual', preview: '👕' },
-  { id: 'leather-jacket', name: 'Jaqueta de Couro', preview: '🧥' },
+  { id: 'black-corset', name: 'Corpete Escuro', preview: '👚' },
+  { id: 'leather-spikes', name: 'Couro com Spikes', preview: '🧥' },
+  { id: 'band-tshirt', name: 'Camiseta de Banda', preview: '👕' },
 ];
 
 const BOTTOMS: ClosetItem[] = [
-  { id: 'skirt-pink', name: 'Saia Pregueada', preview: '👗' },
-  { id: 'jeans-blue', name: 'Jeans Clássico', preview: '👖' },
-  { id: 'shorts-black', name: 'Shorts Escuro', preview: '🩳' },
+  { id: 'skirt-chains', name: 'Saia com Correntes', preview: '👗' },
+  { id: 'ripped-jeans', name: 'Calça Rasgada', preview: '👖' },
+  { id: 'shorts-fishnet', name: 'Shorts & Arruda', preview: '🩳' },
 ];
 
 export const WardrobeCloset: React.FC = () => {
-  const { equippedOutfit, updateOutfit, playSound } = useGameStore();
+  const { equippedOutfit, updateOutfit, playSound, unlockedItems } = useGameStore();
   const [activeTab, setActiveTab] = useState<'hair' | 'top' | 'bottom'>('hair');
 
   const handleEquip = (category: 'hair' | 'top' | 'bottom', itemId: string) => {
+    if (!unlockedItems.includes(itemId)) {
+      playSound('choice');
+      return;
+    }
     playSound('click');
     const newOutfit = { ...equippedOutfit };
     if (category === 'hair') newOutfit.hairstyle = itemId;
@@ -66,19 +70,22 @@ export const WardrobeCloset: React.FC = () => {
         </h4>
 
         {/* Dynamic Stylized Avatar representation */}
-        <div className="relative w-36 h-36 border-4 border-pink-500/20 rounded-full flex flex-col items-center justify-center bg-[#120e29] shadow-inner mb-6 z-10 scale-110">
+        <div className="relative w-36 h-36 border-4 border-pink-500/20 rounded-full flex flex-col items-center justify-center bg-[#120e29] shadow-inner mb-6 z-10 scale-110 overflow-hidden">
+          <img 
+            src="/images/sprites/veronica.png" 
+            alt="Veronica" 
+            className="w-full h-full object-contain object-top mt-4 scale-150" 
+          />
           {/* Hair icon layer */}
-          <span className="text-4xl absolute -top-1">
-            {equippedOutfit.hairstyle === 'long-pink' ? '👱‍♀️' : equippedOutfit.hairstyle === 'short-brunette' ? '💇' : '💇‍♀️'}
+          <span className="text-2xl absolute top-1 right-2 bg-slate-950/70 rounded-full p-1 border border-white/10 w-7 h-7 flex items-center justify-center">
+            {equippedOutfit.hairstyle === 'long-purple-goth' ? '💜' : equippedOutfit.hairstyle === 'short-black-grunge' ? '🖤' : '💈'}
           </span>
-          {/* Body/Head base */}
-          <span className="text-5xl mt-2 select-none">👧</span>
           {/* Clothing Layer */}
-          <span className="text-3xl absolute bottom-3 filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
-            {equippedOutfit.top === 'school-uniform-top' ? '👚' : equippedOutfit.top === 'casual-tshirt' ? '👕' : '🧥'}
+          <span className="text-xl absolute bottom-2 left-2 bg-slate-950/70 rounded-full p-1 border border-white/10 w-7 h-7 flex items-center justify-center filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
+            {equippedOutfit.top === 'black-corset' ? '👚' : equippedOutfit.top === 'leather-spikes' ? '🧥' : '👕'}
           </span>
-          <span className="text-2xl absolute -bottom-1 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-            {equippedOutfit.bottom === 'skirt-pink' ? '👗' : equippedOutfit.bottom === 'jeans-blue' ? '👖' : '🩳'}
+          <span className="text-xl absolute bottom-2 right-2 bg-slate-950/70 rounded-full p-1 border border-white/10 w-7 h-7 flex items-center justify-center filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+            {equippedOutfit.bottom === 'skirt-chains' ? '👗' : equippedOutfit.bottom === 'ripped-jeans' ? '👖' : '🩳'}
           </span>
         </div>
 
@@ -135,14 +142,18 @@ export const WardrobeCloset: React.FC = () => {
                 (activeTab === 'top' && equippedOutfit.top === item.id) ||
                 (activeTab === 'bottom' && equippedOutfit.bottom === item.id);
 
+              const isUnlocked = unlockedItems.includes(item.id);
+
               return (
                 <motion.div
                   key={item.id}
                   onClick={() => handleEquip(activeTab, item.id)}
-                  whileHover={{ y: -3 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={isUnlocked ? { y: -3 } : {}}
+                  whileTap={isUnlocked ? { scale: 0.97 } : {}}
                   className={`relative cursor-pointer bg-white/5 border rounded-xl p-4 flex flex-col items-center justify-between text-center transition-all min-h-[110px] ${
-                    isEquipped 
+                    !isUnlocked
+                      ? 'opacity-40 border-white/5 bg-black/40 cursor-not-allowed'
+                      : isEquipped 
                       ? 'border-pink-500 bg-pink-500/5' 
                       : 'border-white/5 hover:border-pink-500/30'
                   }`}
@@ -150,7 +161,13 @@ export const WardrobeCloset: React.FC = () => {
                   <span className="text-3xl filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">{item.preview}</span>
                   <span className="text-[10px] font-bold text-white tracking-wide truncate max-w-[80px]">{item.name}</span>
                   
-                  {isEquipped && (
+                  {!isUnlocked && (
+                    <div className="absolute top-1.5 right-1.5 text-slate-500">
+                      🔒
+                    </div>
+                  )}
+
+                  {isUnlocked && isEquipped && (
                     <div className="absolute top-1.5 right-1.5 text-pink-400">
                       <CheckCircle2 className="w-4 h-4 fill-[#0d0921]" />
                     </div>
@@ -162,7 +179,7 @@ export const WardrobeCloset: React.FC = () => {
         </div>
 
         <p className="text-[10px] text-slate-500 font-semibold leading-relaxed mt-6">
-          👚 Use o closet para mudar o visual da Veronica. Suas escolhas de vestuário alteram o visual do seu avatar durante as cenas de romance!
+          👚 Use o closet para mudar o visual da Veronica. Roupas bloqueadas podem ser adquiridas na Loja de Roupas pelo Mapa usando Gold!
         </p>
       </div>
 
