@@ -85,8 +85,8 @@ export const GameScreen: React.FC = () => {
 
   const handleSelectChoice = (choice: Choice) => {
     if (isLoading) return;
-    // Find index of choice
-    const index = choices?.findIndex(c => c.nextNodeId === choice.nextNodeId) ?? -1;
+    // Find index of choice comparing both nextNodeId and text to avoid collisions
+    const index = choices?.findIndex(c => c.nextNodeId === choice.nextNodeId && c.text === choice.text) ?? -1;
     if (index !== -1) {
       advance(index);
     }
@@ -202,27 +202,41 @@ export const GameScreen: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Background Scene — SpriteCharacter is inside so PNG transparency shows the scene bg */}
           <Cenario backgroundUrl={backgroundUrl}>
             {currentNodeId !== 'demo-end-loop' && activeNode && (
               <>
-                {activeNode.sprites ? (
-                  activeNode.sprites.map((sprite, idx) => (
-                    <SpriteCharacter
-                      key={`${sprite.name}-${idx}`}
-                      characterName={sprite.name}
-                      expression={sprite.expression}
-                      position={sprite.position}
-                      outfit={sprite.outfit}
+                {activeNode.videoUrl ? (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/85 backdrop-blur-xs">
+                    <video
+                      src={activeNode.videoUrl}
+                      autoPlay
+                      controls
+                      playsInline
+                      className="max-w-[95%] max-h-[85%] rounded-2xl border-4 border-pink-500/35 shadow-[0_0_50px_rgba(219,39,119,0.3)]"
+                      onEnded={handleAdvance}
                     />
-                  ))
-                ) : activeNode.characterName ? (
-                  <SpriteCharacter
-                    characterName={activeNode.characterName}
-                    expression={activeNode.expression}
-                    position="centro"
-                  />
-                ) : null}
+                  </div>
+                ) : (
+                  <>
+                    {activeNode.sprites ? (
+                      activeNode.sprites.map((sprite, idx) => (
+                        <SpriteCharacter
+                          key={`${sprite.name}-${idx}`}
+                          characterName={sprite.name}
+                          expression={sprite.expression}
+                          position={sprite.position}
+                          outfit={sprite.outfit}
+                        />
+                      ))
+                    ) : activeNode.characterName ? (
+                      <SpriteCharacter
+                        characterName={activeNode.characterName}
+                        expression={activeNode.expression}
+                        position="centro"
+                      />
+                    ) : null}
+                  </>
+                )}
               </>
             )}
           </Cenario>

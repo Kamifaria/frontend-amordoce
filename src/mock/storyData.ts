@@ -1002,7 +1002,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'neutral',
     characterName: 'Kami',
     backgroundUrl: 'patio',
-    text: 'Aquele garoto vitoriano esquecido? Não vi caderno nenhum. Se eu fosse você, olhava com a Kami na sala de artes.',
+    text: 'Aquele garoto vitoriano esquecido? Não vi caderno nenhum. Se eu fosse você, procurava comigo na sala de artes mais tarde.',
     next: 'quest-choose-location-3'
   },
   'kami-courtyard-flirt-reply': {
@@ -1011,7 +1011,7 @@ export const mockStory: Record<string, DialogueNode> = {
     expression: 'sly',
     characterName: 'Kami',
     backgroundUrl: 'patio',
-    text: 'Uh... Que direta. Você é bem ousada para uma novata, Veronica. Mas não, não vi o caderno do Lysandre. Vá falar com a Kami na sala de artes.',
+    text: 'Uh... Que direta. Você é bem ousada para uma novata, Veronica. Mas não, não vi o caderno do Lysandre. Se quiser conversar mais, me procure na sala de artes.',
     next: 'quest-choose-location-3'
   },
   'castiel-courtyard-notebook': {
@@ -1678,6 +1678,123 @@ export const mockStory: Record<string, DialogueNode> = {
     backgroundUrl: 'sala_de_aula',
     text: 'O encontro no cinema foi maravilhoso! Você sente que a afinidade de vocês cresceu muito.',
     next: 'demo-end-loop'
+  },
+  'show-invite-harry': {
+    id: 'show-invite-harry',
+    speaker: 'Harry',
+    expression: 'sorrindo',
+    characterName: 'Harry',
+    backgroundUrl: 'sala_de_aula',
+    text: 'Ei, Veronica! A minha banda com a Kami, a Maggie e o Peter tá marcando o primeiro show secreto no clube de música hoje à noite. Você andou me dando uma força legal e eu queria muito que você estivesse lá. Quer colar?',
+    choices: [
+      { text: 'Ir ao Show da Banda', nextNodeId: 'concert-start', costPA: 0 },
+      { text: 'Ir para casa dormir', nextNodeId: 'demo-end-node', costPA: 0 }
+    ]
+  },
+  'show-invite-kami': {
+    id: 'show-invite-kami',
+    speaker: 'Kami',
+    expression: 'sorriso',
+    characterName: 'Kami',
+    backgroundUrl: 'sala_de_artes',
+    text: 'Veronica... Minha banda vai tocar no clube de música hoje. O Harry e a Maggie me convenceram a te chamar. Acho que vai ser... legal se você for. O que me diz?',
+    choices: [
+      { text: 'Ir ao Show da Banda', nextNodeId: 'concert-start', costPA: 0 },
+      { text: 'Ir para casa dormir', nextNodeId: 'demo-end-node', costPA: 0 }
+    ]
+  },
+  'show-invite-maggie': {
+    id: 'show-invite-maggie',
+    speaker: 'Maggie',
+    expression: 'sorrindo',
+    characterName: 'Maggie',
+    backgroundUrl: 'sala_de_artes',
+    text: 'Oi, Veronica! O Harry, a Kami, o Peter e eu formamos uma banda e vamos nos apresentar hoje no pátio dos fundos do clube. Você foi tão simpática comigo que eu adoraria te ver na plateia. Você vem?',
+    choices: [
+      { text: 'Ir ao Show da Banda', nextNodeId: 'concert-start', costPA: 0 },
+      { text: 'Ir para casa dormir', nextNodeId: 'demo-end-node', costPA: 0 }
+    ]
+  },
+  'show-invite-none': {
+    id: 'show-invite-none',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'sala_de_aula',
+    text: 'Você não alcançou afinidade de pelo menos 25% com nenhum dos membros da banda (Harry, Kami, Maggie). Você volta para casa cansada e decide dormir.',
+    next: 'demo-end-node'
+  },
+  'concert-start': {
+    id: 'concert-start',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio',
+    text: 'O clube de música está decorado com luzes neon vibrantes. O público começa a gritar quando a banda sobe ao palco. Harry segura sua guitarra, Kami se posiciona ao lado, Maggie acena nos teclados, e Peter inicia a batida!',
+    next: 'concert-performance-1'
+  },
+  'concert-performance-1': {
+    id: 'concert-performance-1',
+    speaker: 'Harry',
+    expression: 'sorrindo',
+    characterName: 'Harry',
+    backgroundUrl: 'patio',
+    sprites: [
+      { name: 'Harry', position: 'centro', expression: 'sorrindo' },
+      { name: 'Peter', position: 'esquerda', expression: 'neutro' }
+    ],
+    text: '(Harry começa a cantar, sua voz ecoando perfeitamente) "I know you\'re hurt, I know you\'re down..."',
+    next: 'concert-performance-2'
+  },
+  'concert-performance-2': {
+    id: 'concert-performance-2',
+    speaker: 'Maggie',
+    expression: 'sorrindo',
+    characterName: 'Maggie',
+    backgroundUrl: 'patio',
+    sprites: [
+      { name: 'Maggie', position: 'centro', expression: 'sorrindo' },
+      { name: 'Harry', position: 'direita', expression: 'neutro' }
+    ],
+    text: '(Maggie se aproxima do microfone e faz o backing vocal) "But I will be the cure, I will be the light..."',
+    next: 'concert-performance-3'
+  },
+  'concert-performance-3': {
+    id: 'concert-performance-3',
+    speaker: 'Kami',
+    expression: 'sorriso',
+    characterName: 'Kami',
+    backgroundUrl: 'patio',
+    sprites: [
+      { name: 'Kami', position: 'centro', expression: 'sorriso' },
+      { name: 'Peter', position: 'direita', expression: 'neutro' }
+    ],
+    text: '(Kami arrasa com a melodia na guitarra, sorrindo de forma provocativa para a plateia) "No matter what they say, we\'re gonna make it through tonight!"',
+    next: 'concert-performance-4'
+  },
+  'concert-performance-4': {
+    id: 'concert-performance-4',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio',
+    sprites: [
+      { name: 'Harry', position: 'centro', expression: 'sorrindo' },
+      { name: 'Maggie', position: 'esquerda', expression: 'sorrindo' },
+      { name: 'Kami', position: 'direita', expression: 'sorriso' }
+    ],
+    text: 'A plateia vai à loucura quando a música termina com um solo impecável de guitarra de Harry e Peter! O show foi um sucesso absoluto!',
+    next: 'concert-video-show'
+  },
+  'concert-video-show': {
+    id: 'concert-video-show',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'patio',
+    videoUrl: '/video/coloca_eles_trocando_e_cantan.mp4',
+    text: 'Assista à banda arrasando no palco de Sweet Amoris!',
+    next: 'demo-end-node'
   }
 };
 

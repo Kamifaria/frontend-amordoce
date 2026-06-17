@@ -2,6 +2,17 @@ import { create } from 'zustand';
 import { Choice, DialogueNode, ChatMessage, ChatThread, StoryStage, EquippedOutfit, Achievement, DailyQuest, SweetGramPost, ScenarioItem } from '../shared/types';
 import { mockStory } from '../mock/storyData';
 
+const getShowInviteBranch = (affinities: Record<string, number>): string => {
+  const harryAff = affinities.harry ?? 0;
+  const kamiAff = affinities.kami ?? 0;
+  const maggieAff = affinities.maggie ?? 0;
+  
+  if (harryAff >= 25) return 'show-invite-harry';
+  if (kamiAff >= 25) return 'show-invite-kami';
+  if (maggieAff >= 25) return 'show-invite-maggie';
+  return 'show-invite-none';
+};
+
 // Synthesize sounds using Web Audio API (Zero external asset dependencies!)
 let sharedAudioCtx: AudioContext | null = null;
 
@@ -624,6 +635,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   toggleMute: () => {
     set((state) => {
       const nextMute = !state.isMuted;
+      if (typeof window !== 'undefined' && (window as any).concertAudio) {
+        ((window as any).concertAudio as HTMLAudioElement).muted = nextMute;
+      }
       // Synthesize a quick sound to give feedback if unmuting
       if (!nextMute) {
         setTimeout(() => get().playSound('click'), 50);
@@ -920,6 +934,28 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     if (!nextNodeId) return;
+
+    if (nextNodeId === 'demo-end-node' && !['show-invite-harry', 'show-invite-kami', 'show-invite-maggie', 'show-invite-none', 'concert-performance-4', 'concert-video-show'].includes(get().currentNodeId)) {
+      nextNodeId = getShowInviteBranch(get().affinities);
+    }
+
+    // Audio Playback Gating for Band Show
+    if (nextNodeId === 'concert-start') {
+      if (typeof window !== 'undefined') {
+        const audio = new Audio('/audio/Olivia Rodrigo - The Cure.mp3');
+        audio.volume = 0.35;
+        audio.loop = false;
+        audio.muted = get().isMuted;
+        (window as any).concertAudio = audio;
+        audio.play().catch(e => console.warn('Could not auto-play audio', e));
+      }
+    } else if (nextNodeId === 'demo-end-node' || nextNodeId === 'concert-video-show') {
+      if (typeof window !== 'undefined' && (window as any).concertAudio) {
+        try { ((window as any).concertAudio as HTMLAudioElement).pause(); } catch (e) {}
+        (window as any).concertAudio = null;
+      }
+    }
+
     const nextNode = currentStoryMap[nextNodeId];
     if (!nextNode) return;
 
@@ -991,9 +1027,31 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     const currentTree = state.storyTree['start'] ? state.storyTree : mockStory;
-    if (!choice.nextNodeId) return;
-    
-    const nextNode = currentTree[choice.nextNodeId];
+    let nextNodeId = choice.nextNodeId;
+    if (!nextNodeId) return;
+
+    if (nextNodeId === 'demo-end-node' && !['show-invite-harry', 'show-invite-kami', 'show-invite-maggie', 'show-invite-none', 'concert-performance-4', 'concert-video-show'].includes(state.currentNodeId)) {
+      nextNodeId = getShowInviteBranch(state.affinities);
+    }
+
+    // Audio Playback Gating for Band Show
+    if (nextNodeId === 'concert-start') {
+      if (typeof window !== 'undefined') {
+        const audio = new Audio('/audio/Olivia Rodrigo - The Cure.mp3');
+        audio.volume = 0.35;
+        audio.loop = false;
+        audio.muted = state.isMuted;
+        (window as any).concertAudio = audio;
+        audio.play().catch(e => console.warn('Could not auto-play audio', e));
+      }
+    } else if (nextNodeId === 'demo-end-node' || nextNodeId === 'concert-video-show') {
+      if (typeof window !== 'undefined' && (window as any).concertAudio) {
+        try { ((window as any).concertAudio as HTMLAudioElement).pause(); } catch (e) {}
+        (window as any).concertAudio = null;
+      }
+    }
+
+    const nextNode = currentTree[nextNodeId];
     if (!nextNode) return;
 
     state.playSound('choice');
@@ -1034,7 +1092,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     set({
       playerPA: state.playerPA - choice.costPA,
-      currentNodeId: choice.nextNodeId,
+      currentNodeId: nextNodeId,
       currentSpeaker: nextNode.characterName,
       currentText: nextNode.text,
       backgroundUrl: nextNode.backgroundUrl,
@@ -1046,7 +1104,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     state.tryRandomMessage();
 
     saveLocalProgress({
-      currentNodeId: choice.nextNodeId,
+      currentNodeId: nextNodeId,
       playerPA: state.playerPA - choice.costPA,
       playerGold: state.playerGold,
       affinities: get().affinities,
@@ -1262,6 +1320,22 @@ export const useGameStore = create<GameState>((set, get) => ({
       get().playSound('heart');
     } else {
       get().playSound('choice');
+    }
+
+    // Trigger incoming phone call when affinity reaches 25 or more for the first time
+    if (newScore >= 25 && currentScore < 25) {
+      setTimeout(() => {
+        get().playSound('ring');
+        set({
+          isPhoneOpen: true,
+          activeCall: {
+            characterId,
+            direction: 'incoming',
+            status: 'ringing',
+            dialogueNodeId: `call_${characterId}_high`
+          }
+        });
+      }, 1500);
     }
     
     // Auto unlock tip for that character when affinity crosses 10!

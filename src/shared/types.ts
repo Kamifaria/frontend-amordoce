@@ -34,6 +34,7 @@ export interface DialogueNode {
   cgUrl?: string;
   triggerChatCharacterId?: string;
   triggerChatText?: string;
+  videoUrl?: string;
 }
 
 export interface PhoneContact {
