@@ -150,8 +150,6 @@ const saveLocalProgress = (stateData: {
     timeOfDay: 'morning' | 'afternoon' | 'night';
     weather: 'clear' | 'rain' | 'snow';
   };
-  isPianoActive: boolean;
-  setIsPianoActive: (active: boolean) => void;
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
