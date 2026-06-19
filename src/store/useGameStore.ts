@@ -139,6 +139,10 @@ const saveLocalProgress = (stateData: {
   equippedOutfit?: EquippedOutfit;
   metCharacters?: string[];
   unlockedItems?: string[];
+  environment?: {
+    timeOfDay: 'morning' | 'afternoon' | 'night';
+    weather: 'clear' | 'rain' | 'snow';
+  };
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
