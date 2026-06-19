@@ -16,7 +16,6 @@ const PAPERS = [
 export const NathanielSwipeGame: React.FC = () => {
   const { endMinigame, changeAffinity } = useGameStore();
   const [cards, setCards] = useState(PAPERS);
-  const [score, setScore] = useState(0);
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo, cardId: number) => {
     const swipeThreshold = 100;
@@ -35,13 +34,11 @@ export const NathanielSwipeGame: React.FC = () => {
     const approved = direction === 'right';
     const isCorrect = approved === card.isGood;
 
-    setScore(prev => prev + (isCorrect ? 20 : -10));
-
     setCards(prev => {
       const nextCards = prev.filter(c => c.id !== cardId);
       if (nextCards.length === 0) {
         setTimeout(() => {
-          changeAffinity('nathaniel', 15);
+          changeAffinity('nathaniel', isCorrect ? 15 : 0);
           endMinigame(100);
         }, 1000);
       }
@@ -58,9 +55,7 @@ export const NathanielSwipeGame: React.FC = () => {
       <div className="absolute top-10 flex flex-col items-center text-center">
         <FileText className="text-blue-400 w-10 h-10 mb-2" />
         <h2 className="text-2xl font-bold text-white">Grêmio Estudantil</h2>
-        <p className="text-blue-200 text-sm max-w-md mt-2">
-          Ajude o Nathaniel com a papelada. Deslize para a <strong>DIREITA</strong> para aprovar justificativas válidas, e para a <strong>ESQUERDA</strong> para rejeitar as ruins.
-        </p>
+        <p className="text-amber-200 text-sm text-center px-4">Deslize para a <span className="font-bold text-amber-100">DIREITA</span> para aprovar a ficha ou para a <span className="font-bold text-amber-100">ESQUERDA</span> se houver erros de disciplina.</p>
       </div>
 
       <div className="relative w-full max-w-sm h-96 flex items-center justify-center mt-12 perspective-1000">
@@ -94,7 +89,7 @@ export const NathanielSwipeGame: React.FC = () => {
                 
                 <div className="flex-1">
                   <p className="text-slate-700 italic text-lg leading-relaxed">
-                    "{card.excuse}"
+                    &quot;{card.excuse}&quot;
                   </p>
                 </div>
 

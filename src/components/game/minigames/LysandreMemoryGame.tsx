@@ -14,19 +14,12 @@ const POEM_PAIRS = [
 
 export const LysandreMemoryGame: React.FC = () => {
   const { endMinigame, changeAffinity } = useGameStore();
-  const [cards, setCards] = useState<{ id: string; text: string; matchId: string; isFlipped: boolean; isMatched: boolean }[]>([]);
-  const [flippedCards, setFlippedCards] = useState<number[]>([]);
-  const [matches, setMatches] = useState(0);
-
-  useEffect(() => {
-    // Preparar as cartas
-    const preparedCards = POEM_PAIRS.flatMap(pair => [
+  const [cards, setCards] = useState<{ id: string; text: string; matchId: string; isFlipped: boolean; isMatched: boolean }[]>(() => {
+    return POEM_PAIRS.flatMap(pair => [
       { id: `${pair.id}-A`, text: pair.textA, matchId: pair.matchId, isFlipped: false, isMatched: false },
       { id: `${pair.id}-B`, text: pair.textB, matchId: pair.matchId, isFlipped: false, isMatched: false }
     ]).sort(() => Math.random() - 0.5);
-    
-    setCards(preparedCards);
-  }, []);
+  });
 
   const handleCardClick = (index: number) => {
     if (flippedCards.length >= 2 || cards[index].isFlipped || cards[index].isMatched) return;

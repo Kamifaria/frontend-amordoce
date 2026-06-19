@@ -57,8 +57,8 @@ export const VeronicaPiano: React.FC<VeronicaPianoProps> = ({ onClose }) => {
         <div className="p-6 bg-zinc-800 min-h-[400px] flex flex-col">
           {activeTab === 'keyboard' ? (
             <div className="flex-1 flex flex-col">
-              <p className="text-center text-gray-400 text-sm mb-4 px-2">
-                Use o mouse, toque na tela, ou use as letras do teclado para tocar.
+              <p className="text-indigo-200 text-sm text-center max-w-md">
+                Toque as notas da partitura corretamente para reproduzir a melodia de forma autônoma. Descubra os segredos escondidos.
                 <span className="block md:hidden mt-1 text-xs text-amber-500/70">Arraste para os lados para ver todas as teclas</span>
               </p>
               <PianoKeyboard onSecretTrigger={handleSecretTrigger} />
