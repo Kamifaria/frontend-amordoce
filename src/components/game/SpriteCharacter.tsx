@@ -137,11 +137,22 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
     ...EXPRESSION_ANIMATE[mappedExpr],
     ...(EXPRESSION_KEYFRAMES[mappedExpr] || {}),
     opacity: ready ? 1 : 0,
+    x: 0,
+    y: 0,
   };
   const animTransition = {
     ...(EXPRESSION_TRANSITIONS[mappedExpr] || {}),
-    default: { type: 'tween', duration: 0.3 },
+    default: { type: 'spring', stiffness: 200, damping: 20 },
   };
+
+  const getInitialPosition = () => {
+    if (position === 'esquerda') return { x: -100, opacity: 0, scale: 0.95 };
+    if (position === 'direita') return { x: 100, opacity: 0, scale: 0.95 };
+    return { y: 60, opacity: 0, scale: 0.93 }; // centro
+  };
+
+  // Randomized slight delay for breathing to not make all characters sync perfectly
+  const breathDelay = React.useMemo(() => Math.random() * 2, []);
 
   return (
     <div
@@ -150,10 +161,10 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
     >
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${charKey}-${mappedExpr}`}
-          initial={{ opacity: 0, y: 60, scale: 0.93 }}
+          key={`${charKey}-${mappedExpr}-wrapper`}
+          initial={getInitialPosition()}
           animate={baseAnimate}
-          exit={{ opacity: 0, y: 60, scale: 0.93 }}
+          exit={getInitialPosition()}
           transition={animTransition as object}
           style={{
             width: '100%',
@@ -163,29 +174,50 @@ export const SpriteCharacter: React.FC<SpriteCharacterProps> = ({
             justifyContent: 'center',
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={displayUrl}
-            alt={characterName}
-            onError={(e) => {
-              // Graceful fallback: if outfit asset missing, use default sprite
-              const target = e.currentTarget;
-              if (target.src !== fallbackUrl && fallbackUrl) {
-                target.src = fallbackUrl;
-              }
+          {/* Inner motion div for continuous breathing effect (Live2D-like) */}
+          <motion.div
+            animate={{
+              scaleY: [1, 1.015, 1],
+              scaleX: [1, 0.995, 1],
+            }}
+            transition={{
+              duration: 3.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: breathDelay,
             }}
             style={{
               height: '100%',
-              width: 'auto',
-              maxWidth: '100%',
-              objectFit: 'contain',
-              objectPosition: 'bottom center',
-              filter: 'drop-shadow(0 8px 28px rgba(0,0,0,0.65))',
-              display: 'block',
-              transform: charKey === 'maggie' ? 'scale(1.6) translateY(-5%)' : 'scale(1)',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
               transformOrigin: 'bottom center',
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={displayUrl}
+              alt={characterName}
+              onError={(e) => {
+                // Graceful fallback: if outfit asset missing, use default sprite
+                const target = e.currentTarget;
+                if (target.src !== fallbackUrl && fallbackUrl) {
+                  target.src = fallbackUrl;
+                }
+              }}
+              style={{
+                height: '100%',
+                width: 'auto',
+                maxWidth: '100%',
+                objectFit: 'contain',
+                objectPosition: 'bottom center',
+                filter: 'drop-shadow(0 8px 28px rgba(0,0,0,0.65))',
+                display: 'block',
+                transform: charKey === 'maggie' ? 'scale(1.6) translateY(-5%)' : 'scale(1)',
+                transformOrigin: 'bottom center',
+              }}
+            />
+          </motion.div>
         </motion.div>
       </AnimatePresence>
     </div>

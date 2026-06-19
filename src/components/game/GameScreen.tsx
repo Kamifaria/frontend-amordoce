@@ -18,7 +18,8 @@ import {
   VolumeX, 
   Heart,
   BookOpen,
-  Map
+  Map,
+  CloudRain
 } from 'lucide-react';
 import { PhoneOverlay } from './PhoneOverlay';
 import { MapOverlay } from './MapOverlay';
@@ -140,6 +141,26 @@ export const GameScreen: React.FC = () => {
                 className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-purple-300 hover:text-purple-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
               >
                 <RefreshCw size={16} />
+              </button>
+
+              {/* Dev: Toggle Environment Button */}
+              <button
+                onClick={() => {
+                  const states = [
+                    { timeOfDay: 'morning', weather: 'clear' },
+                    { timeOfDay: 'afternoon', weather: 'clear' },
+                    { timeOfDay: 'night', weather: 'clear' },
+                    { timeOfDay: 'afternoon', weather: 'rain' },
+                    { timeOfDay: 'night', weather: 'snow' },
+                  ] as const;
+                  const currentIdx = states.findIndex(s => s.timeOfDay === useGameStore.getState().environment.timeOfDay && s.weather === useGameStore.getState().environment.weather);
+                  const nextIdx = (currentIdx + 1) % states.length;
+                  useGameStore.getState().setEnvironment(states[nextIdx]);
+                }}
+                title="[Dev] Alternar Clima/Hora"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#120e24]/75 backdrop-blur-md text-cyan-300 hover:text-cyan-200 border border-white/10 hover:bg-[#1b1736]/80 transition-all cursor-pointer"
+              >
+                <CloudRain size={16} />
               </button>
 
               {/* Episodes Button */}

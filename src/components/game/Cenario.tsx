@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { useGameStore } from '@/store/useGameStore';
 import { ScenarioItem } from '@/shared/types';
+import { WeatherEffects } from './WeatherEffects';
 
 interface CenarioProps {
   backgroundUrl: string;
@@ -44,9 +45,20 @@ const getBackgroundSrc = (url: string): string => {
 
 export const Cenario: React.FC<CenarioProps> = ({ backgroundUrl, children }) => {
   const bgSrc = getBackgroundSrc(backgroundUrl);
-  const { currentLocationId, collectedItems, collectScenarioItem, storyStage } = useGameStore();
+  const { currentLocationId, collectedItems, collectScenarioItem, storyStage, environment } = useGameStore();
 
   const items = SCENARIO_ITEMS[currentLocationId] || [];
+
+  const timeOverlay = React.useMemo(() => {
+    switch (environment.timeOfDay) {
+      case 'afternoon':
+        return 'bg-orange-500/20 mix-blend-color-burn';
+      case 'night':
+        return 'bg-blue-900/40 mix-blend-multiply';
+      default:
+        return 'bg-transparent';
+    }
+  }, [environment.timeOfDay]);
 
   return (
     <div className="absolute inset-0 z-0 h-full w-full pointer-events-auto">
@@ -63,6 +75,12 @@ export const Cenario: React.FC<CenarioProps> = ({ backgroundUrl, children }) => 
           />
         )}
       </AnimatePresence>
+
+      {/* Time of Day Overlay */}
+      <div className={`absolute inset-0 z-[1] pointer-events-none transition-colors duration-1000 ${timeOverlay}`} />
+
+      {/* Weather Particles */}
+      <WeatherEffects />
 
       {/* Render Point-and-Click scenario items in FREE_EXPLORE stage */}
       {storyStage === 'FREE_EXPLORE' && items.map((item) => {

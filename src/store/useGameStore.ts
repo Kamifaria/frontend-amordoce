@@ -278,6 +278,13 @@ interface GameState {
   likePost: (postId: string) => void;
   commentOnPost: (postId: string, commentIndex: number) => void;
   collectScenarioItem: (item: ScenarioItem) => void;
+
+  // Environment (Weather & Day/Night)
+  environment: {
+    timeOfDay: 'morning' | 'afternoon' | 'night';
+    weather: 'clear' | 'rain' | 'snow';
+  };
+  setEnvironment: (env: Partial<GameState['environment']>) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -318,6 +325,15 @@ export const useGameStore = create<GameState>((set, get) => ({
   focusedCharacter: null,
   metCharacters: [],
   savedPaintings: [],
+
+  environment: {
+    timeOfDay: 'morning',
+    weather: 'clear',
+  },
+
+  setEnvironment: (env) => set((state) => ({
+    environment: { ...state.environment, ...env }
+  })),
 
   // Lobby States
   currentView: 'lobby',
@@ -380,6 +396,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       currentLocationId: get().currentLocationId,
       lastDailyDraw: get().lastDailyDraw,
       equippedOutfit: outfit,
+      environment: get().environment,
     });
 
     // Integrated enhancements triggers
