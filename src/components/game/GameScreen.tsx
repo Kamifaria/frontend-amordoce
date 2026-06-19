@@ -31,6 +31,7 @@ import { RemiTarotGame } from './minigames/RemiTarotGame';
 import { NathanielSwipeGame } from './minigames/NathanielSwipeGame';
 import { CastielEscapeGame } from './minigames/CastielEscapeGame';
 import { ClothingShop } from './ClothingShop';
+import { VeronicaPiano } from './piano/VeronicaPiano';
 import { Choice } from '@/shared/types';
 import { mockStory } from '@/mock/storyData';
 
@@ -284,6 +285,7 @@ export const GameScreen: React.FC = () => {
           {activeMinigame === 'tarot' && <RemiTarotGame />}
           {activeMinigame === 'swipe' && <NathanielSwipeGame />}
           {activeMinigame === 'escape' && <CastielEscapeGame />}
+          {activeMinigame === 'piano' && <VeronicaPiano onClose={() => useGameStore.getState().endMinigame(0)} />}
 
           {/* Map Overlay */}
           <MapOverlay isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} />

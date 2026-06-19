@@ -266,6 +266,10 @@ interface GameState {
   unlockedItems: string[];
   buyOutfit: (itemId: string, cost: number) => boolean;
 
+  // Piano & Sheet Music
+  unlockedSheetMusic: string[];
+  unlockSheetMusic: (id: string) => void;
+
   // Gameplay Enhancements Actions
   unlockAchievement: (id: string) => void;
   dismissAchievement: () => void;
@@ -306,6 +310,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   activeEpisodeId: 1,
   unlockedCGs: [],
   unlockedItems: ['long-purple-goth', 'black-corset', 'skirt-chains'],
+  unlockedSheetMusic: [],
   storyStage: 'INTRO',
   cluesFound: [],
   currentLocationId: 'school',
@@ -559,6 +564,17 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       return {
         collectedItems: [...state.collectedItems, item.id]
+      };
+    });
+  },
+
+  unlockSheetMusic: (id) => {
+    set((state) => {
+      if (state.unlockedSheetMusic.includes(id)) return {};
+      
+      state.playSound('heart');
+      return {
+        unlockedSheetMusic: [...state.unlockedSheetMusic, id]
       };
     });
   },
