@@ -43,5 +43,10 @@ export const availableSheetMusic: SheetMusic[] = [
     id: 'melody_secret',
     title: 'Aeris Theme (Secreta)',
     notes: ['A4', 'D5', 'C#5', 'D5', 'F#5', 'D5', 'A4', 'F#4']
+  },
+  {
+    id: 'melody_demi',
+    title: 'Demi Lovato - Heart Attack (Intro)',
+    notes: ['C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'F4', 'G4']
   }
 ];

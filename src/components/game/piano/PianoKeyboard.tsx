@@ -41,9 +41,17 @@ const playNoteAudio = (noteName: string) => {
   osc.stop(audioCtx.currentTime + 1.5);
 };
 
-export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void }> = ({ onSecretTrigger }) => {
+export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void; selectedSongId?: string | null }> = ({ onSecretTrigger, selectedSongId }) => {
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
+  const [songProgress, setSongProgress] = useState(0);
   const playedSequence = useRef<string[]>([]);
+  
+  // Track song selection changes to reset progress
+  useEffect(() => {
+    setSongProgress(0);
+  }, [selectedSongId]);
+
+  const currentSong = availableSheetMusic.find(sm => sm.id === selectedSongId);
 
   const playNote = useCallback((noteName: string) => {
     setActiveKeys((prev) => new Set(prev).add(noteName));
@@ -67,6 +75,26 @@ export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void }> = ({ onSec
         }
       }
     }
+    
+    // Tutorial progress tracking
+    if (currentSong && currentSong.notes.length > 0) {
+      setSongProgress(prev => {
+        const expectedNote = currentSong.notes[prev];
+        if (noteName === expectedNote) {
+          const next = prev + 1;
+          if (next >= currentSong.notes.length) {
+            // Song completed!
+            setTimeout(() => {
+              setSongProgress(0); // Reset after completion
+              onSecretTrigger(); // You could add a specific song complete trigger here
+            }, 1000);
+            return next;
+          }
+          return next;
+        }
+        return prev; // Or reset to 0 if we want strict mode: return 0;
+      });
+    }
 
     setTimeout(() => {
       setActiveKeys((prev) => {
@@ -75,7 +103,7 @@ export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void }> = ({ onSec
         return next;
       });
     }, 200);
-  }, [onSecretTrigger]);
+  }, [onSecretTrigger, currentSong]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,14 +119,53 @@ export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void }> = ({ onSec
   }, [playNote]);
 
   return (
-    <div className="relative flex justify-start md:justify-center mt-10 mb-8 select-none overflow-x-auto pb-6 w-full max-w-[100vw] custom-scrollbar px-4">
-      <div className="flex relative bg-zinc-900 p-4 rounded-b-xl rounded-t-sm shadow-2xl border-t-8 border-zinc-800 min-w-max">
+    <div className="relative flex flex-col items-center mt-2 mb-8 select-none w-full max-w-[100vw] px-2 md:px-4">
+      {/* Tutorial Overlay */}
+      {currentSong && (
+        <div className="w-full max-w-2xl bg-zinc-900/80 rounded-xl p-4 mb-6 shadow-inner border border-zinc-700/50 backdrop-blur-sm">
+          <h3 className="text-amber-400 font-bold mb-3 flex items-center justify-center gap-2">
+            <span>🎵</span> {currentSong.title}
+          </h3>
+          <div className="flex flex-wrap justify-center gap-2">
+            {currentSong.notes.map((note, idx) => {
+              const isPast = idx < songProgress;
+              const isCurrent = idx === songProgress;
+              return (
+                <div 
+                  key={idx}
+                  className={`px-3 py-1.5 rounded font-mono text-sm sm:text-base font-bold transition-all duration-300 ${
+                    isPast ? 'bg-amber-600 text-white scale-95 opacity-50' : 
+                    isCurrent ? 'bg-amber-400 text-zinc-900 scale-110 shadow-[0_0_15px_rgba(251,191,36,0.6)] animate-pulse ring-2 ring-amber-200' : 
+                    'bg-zinc-800 text-zinc-500'
+                  }`}
+                >
+                  {note}
+                </div>
+              );
+            })}
+          </div>
+          {songProgress >= currentSong.notes.length && (
+            <div className="text-center mt-4 text-emerald-400 font-bold animate-bounce">
+              Perfeito! Você tocou a música inteira! ✨
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="relative flex justify-start md:justify-center overflow-x-auto pb-6 w-full custom-scrollbar">
+        <div className="flex relative bg-zinc-900 p-4 rounded-b-xl rounded-t-sm shadow-2xl border-t-8 border-zinc-800 min-w-max mx-auto">
         {pianoKeysData.filter(k => k.type === 'white').map((keyData, idx) => (
           <div
             key={keyData.note}
             onMouseDown={() => playNote(keyData.note)}
             onTouchStart={() => playNote(keyData.note)}
-            className={`w-10 sm:w-12 h-32 sm:h-40 bg-white border border-gray-300 rounded-b-md shadow-sm mx-[1px] relative cursor-pointer active:bg-gray-200 transition-colors duration-75 flex flex-col justify-end pb-2 items-center text-[10px] sm:text-xs font-bold ${activeKeys.has(keyData.note) ? 'bg-gray-200 shadow-inner translate-y-1' : ''}`}
+            className={`w-10 sm:w-12 h-32 sm:h-40 bg-white border border-gray-300 rounded-b-md shadow-sm mx-[1px] relative cursor-pointer active:bg-gray-200 transition-colors duration-75 flex flex-col justify-end pb-2 items-center text-[10px] sm:text-xs font-bold ${
+              activeKeys.has(keyData.note) ? 'bg-gray-200 shadow-inner translate-y-1' : ''
+            } ${
+              currentSong && currentSong.notes[songProgress] === keyData.note && !activeKeys.has(keyData.note) 
+                ? 'shadow-[0_0_20px_rgba(251,191,36,0.6)] bg-amber-50' 
+                : ''
+            }`}
           >
             <span className="text-gray-400 mb-1">{keyData.keyboardBinding.toUpperCase()}</span>
             <span className="text-gray-800">{keyData.note.replace(/[0-9]/g, '')}</span>
@@ -124,7 +191,13 @@ export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void }> = ({ onSec
                       e.stopPropagation();
                       playNote(nextKey.note);
                     }}
-                    className={`absolute -right-2 sm:-right-3 top-0 w-5 sm:w-6 h-20 sm:h-24 bg-black border border-zinc-800 rounded-b shadow-lg z-10 cursor-pointer pointer-events-auto flex flex-col justify-end items-center pb-2 text-[8px] sm:text-[10px] text-white font-bold transition-transform duration-75 ${activeKeys.has(nextKey.note) ? 'bg-zinc-800 shadow-inner translate-y-1' : ''}`}
+                    className={`absolute -right-2 sm:-right-3 top-0 w-5 sm:w-6 h-20 sm:h-24 bg-black border border-zinc-800 rounded-b shadow-lg z-10 cursor-pointer pointer-events-auto flex flex-col justify-end items-center pb-2 text-[8px] sm:text-[10px] text-white font-bold transition-transform duration-75 ${
+                      activeKeys.has(nextKey.note) ? 'bg-zinc-800 shadow-inner translate-y-1' : ''
+                    } ${
+                      currentSong && currentSong.notes[songProgress] === nextKey.note && !activeKeys.has(nextKey.note)
+                        ? 'shadow-[0_0_20px_rgba(251,191,36,0.8)] border-amber-400'
+                        : ''
+                    }`}
                   >
                     <span className="text-gray-400">{nextKey.keyboardBinding.toUpperCase()}</span>
                   </div>

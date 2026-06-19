@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PianoKeyboard } from './PianoKeyboard';
 import { SheetMusicTab } from './SheetMusicTab';
 import { useGameStore } from '../../../store/useGameStore';
+import { availableSheetMusic } from './pianoKeysData';
 
 interface VeronicaPianoProps {
   onClose: () => void;
@@ -10,17 +11,58 @@ interface VeronicaPianoProps {
 export const VeronicaPiano: React.FC<VeronicaPianoProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<'keyboard' | 'sheetMusic'>('keyboard');
   const [showSecretDialog, setShowSecretDialog] = useState(false);
+  const [showOrientationWarning, setShowOrientationWarning] = useState(false);
+  const [selectedSongId, setSelectedSongId] = useState<string | null>('melody_demi');
   
   // Expose unlock function for testing the UI
   const unlockSheetMusic = useGameStore(state => state.unlockSheetMusic);
+  const setIsPianoActive = useGameStore(state => state.setIsPianoActive);
+
+  useEffect(() => {
+    setIsPianoActive(true);
+    
+    const checkOrientation = () => {
+      if (window.innerWidth < 768 && window.innerHeight > window.innerWidth) {
+        setShowOrientationWarning(true);
+      } else {
+        setShowOrientationWarning(false);
+      }
+    };
+    
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    
+    return () => {
+      setIsPianoActive(false);
+      window.removeEventListener('resize', checkOrientation);
+    };
+  }, [setIsPianoActive]);
 
   const handleSecretTrigger = () => {
     setShowSecretDialog(true);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-zinc-800 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden border border-zinc-700 flex flex-col relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-0 md:p-4">
+      {showOrientationWarning && (
+        <div className="absolute inset-0 z-[60] bg-zinc-900 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-20 h-20 mb-6 relative animate-bounce">
+            <div className="w-12 h-20 border-4 border-white rounded-xl absolute top-0 left-1/2 -translate-x-1/2 rotate-90 transition-transform duration-1000"></div>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Vire o seu celular!</h2>
+          <p className="text-zinc-400 max-w-xs">
+            Para ter o teclado completo do piano e a melhor experiência, use o celular na horizontal.
+          </p>
+          <button 
+            onClick={() => setShowOrientationWarning(false)}
+            className="mt-8 px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold"
+          >
+            Continuar mesmo assim
+          </button>
+        </div>
+      )}
+      
+      <div className="bg-zinc-800 md:rounded-xl shadow-2xl w-full h-[100dvh] md:h-auto md:max-w-4xl overflow-hidden border border-zinc-700 flex flex-col relative">
         
         {/* Header */}
         <div className="bg-zinc-900 p-4 border-b border-zinc-700 flex justify-between items-center">
@@ -56,12 +98,25 @@ export const VeronicaPiano: React.FC<VeronicaPianoProps> = ({ onClose }) => {
         {/* Content Area */}
         <div className="p-6 bg-zinc-800 min-h-[400px] flex flex-col">
           {activeTab === 'keyboard' ? (
-            <div className="flex-1 flex flex-col">
-              <p className="text-indigo-200 text-sm text-center max-w-md">
-                Toque as notas da partitura corretamente para reproduzir a melodia de forma autônoma. Descubra os segredos escondidos.
-                <span className="block md:hidden mt-1 text-xs text-amber-500/70">Arraste para os lados para ver todas as teclas</span>
-              </p>
-              <PianoKeyboard onSecretTrigger={handleSecretTrigger} />
+            <div className="flex-1 flex flex-col relative">
+              <div className="flex justify-between items-start mb-2 px-2">
+                <p className="text-indigo-200 text-xs md:text-sm max-w-md">
+                  Descubra segredos através das notas musicais!
+                  <span className="block md:hidden mt-1 text-[10px] text-amber-500/70">Arraste para os lados para ver as teclas</span>
+                </p>
+                <select 
+                  className="bg-zinc-900 border border-zinc-700 text-amber-400 text-xs rounded p-1 outline-none"
+                  value={selectedSongId || ''}
+                  onChange={(e) => setSelectedSongId(e.target.value || null)}
+                >
+                  <option value="">(Tocar livremente)</option>
+                  {availableSheetMusic.map(sm => (
+                    <option key={sm.id} value={sm.id}>{sm.title}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <PianoKeyboard onSecretTrigger={handleSecretTrigger} selectedSongId={selectedSongId} />
               
               <div className="mt-auto flex justify-center">
                 {/* For testing only - unlock a melody */}

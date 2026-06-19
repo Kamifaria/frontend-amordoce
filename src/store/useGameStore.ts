@@ -150,6 +150,8 @@ const saveLocalProgress = (stateData: {
     timeOfDay: 'morning' | 'afternoon' | 'night';
     weather: 'clear' | 'rain' | 'snow';
   };
+  isPianoActive: boolean;
+  setIsPianoActive: (active: boolean) => void;
 }) => {
   if (typeof window !== 'undefined') {
     const prevSaved = localStorage.getItem('local_game_state');
@@ -252,6 +254,10 @@ interface GameState {
   cluesFound: string[];
   setStoryStage: (stage: StoryStage) => void;
   collectClue: (clueId: string) => void;
+  unlockItem: (itemId: string) => void;
+  enterShop: () => void;
+  leaveLocation: (locationId: string) => void;
+  setIsPianoActive: (active: boolean) => void;
 
   // Navigation state & action
   currentLocationId: string;
@@ -674,6 +680,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   ],
 
   isMuted: false,
+  isPianoActive: false,
   affinityNotifications: [],
 
   toggleMute: () => {
@@ -694,6 +701,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (get().isMuted) return;
     playSynthesizedSound(type);
   },
+
+  setIsPianoActive: (active) => set({ isPianoActive: active }),
 
   removeAffinityNotification: (id) => set((state) => ({
     affinityNotifications: state.affinityNotifications.filter((n) => n.id !== id)

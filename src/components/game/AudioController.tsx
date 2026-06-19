@@ -8,6 +8,7 @@ export const AudioController: React.FC = () => {
   const currentSpeaker = useGameStore((state) => state.currentSpeaker);
   const activeMinigame = useGameStore((state) => state.activeMinigame);
   const isMuted = useGameStore((state) => state.isMuted);
+  const isPianoActive = useGameStore((state) => state.isPianoActive);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentSrcRef = useRef<string | null>(null);
@@ -22,8 +23,8 @@ export const AudioController: React.FC = () => {
       desiredSrc = '/audio/Tema-kami.mp3';
     }
 
-    // Pause BGM if minigame is active or game is muted
-    if (activeMinigame || isMuted) {
+    // Pause BGM if minigame is active, piano is active, or game is muted
+    if (activeMinigame || isMuted || isPianoActive) {
       desiredSrc = null;
     }
 
@@ -46,12 +47,12 @@ export const AudioController: React.FC = () => {
       }
 
       currentSrcRef.current = desiredSrc;
-    } else if (audioRef.current && isMuted) {
-       // if we are already playing but just got muted
+    } else if (audioRef.current && (isMuted || isPianoActive)) {
+       // if we are already playing but just got muted or piano opened
        audioRef.current.pause();
        currentSrcRef.current = null;
     }
-  }, [currentView, currentSpeaker, activeMinigame, isMuted]);
+  }, [currentView, currentSpeaker, activeMinigame, isMuted, isPianoActive]);
 
   return null; // This component has no UI
 };
