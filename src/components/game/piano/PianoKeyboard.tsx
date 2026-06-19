@@ -48,6 +48,7 @@ export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void; selectedSong
   
   // Track song selection changes to reset progress
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSongProgress(0);
   }, [selectedSongId]);
 

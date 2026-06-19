@@ -45,7 +45,9 @@ export const PhoneOverlay: React.FC = () => {
   const [callResponseText, setCallResponseText] = useState<string | null>(null);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedCallChoice(null);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCallResponseText(null);
   }, [activeCall?.characterId, activeCall?.status]);
 
