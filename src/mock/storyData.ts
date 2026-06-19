@@ -1280,9 +1280,10 @@ export const mockStory: Record<string, DialogueNode> = {
     speaker: 'Narrador',
     expression: 'none',
     characterName: 'Narrador',
-    backgroundUrl: 'sala_de_aula', // Usando sala de aula como quarto por enquanto
-    text: 'Você chega em casa e se deita para descansar. O primeiro dia em Sweet Amoris foi cansativo, mas inesquecível. Quem você gostaria de chamar no celular para bater um papo no SweetChat agora?',
+    backgroundUrl: 'quarto_veronica',
+    text: 'Você chega em casa e se deita para descansar. O primeiro dia em Sweet Amoris foi cansativo, mas inesquecível. O que você gostaria de fazer agora?',
     choices: [
+      { text: 'Tocar o piano da Veronica (Minigame)', nextNodeId: 'home-piano-node', costPA: 0, minigame: 'piano' },
       { text: 'Chamar Castiel no Chat', nextNodeId: 'home-castiel-chat', costPA: 0 },
       { text: 'Chamar Nathaniel no Chat', nextNodeId: 'home-nathaniel-chat', costPA: 0 },
       { text: 'Chamar Remi no Chat', nextNodeId: 'home-remi-chat', costPA: 0 },
@@ -1294,6 +1295,15 @@ export const mockStory: Record<string, DialogueNode> = {
   },
 
   // --- ENTRADAS DE CHAT AUTOMÁTICAS (WhatsApp) ---
+  'home-piano-node': {
+    id: 'home-piano-node',
+    speaker: 'Narrador',
+    expression: 'none',
+    characterName: 'Narrador',
+    backgroundUrl: 'quarto_veronica',
+    text: 'Você passou um bom tempo tocando piano. A música te ajudou a relaxar depois de um longo dia na escola.',
+    next: 'quest-home-end'
+  },
   'home-castiel-chat': {
     id: 'home-castiel-chat',
     speaker: 'Narrador',

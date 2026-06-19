@@ -10,12 +10,13 @@ import { AffinityTracker } from './AffinityTracker';
 import { WardrobeCloset } from './WardrobeCloset';
 import { DailyQuests } from './DailyQuests';
 import { GalleryTab } from './GalleryTab';
+import { VeronicaPiano } from '../game/piano/VeronicaPiano';
 
 export const LobbyContainer: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'episodes' | 'tarot' | 'closet' | 'affinities' | 'gallery'>('episodes');
+  const [activeTab, setActiveTab] = useState<'episodes' | 'tarot' | 'closet' | 'affinities' | 'gallery' | 'quarto'>('episodes');
   const { playerPA, playerGold, isMuted, toggleMute, playSound } = useGameStore();
 
-  const handleTabChange = (tab: 'episodes' | 'tarot' | 'closet' | 'affinities' | 'gallery') => {
+  const handleTabChange = (tab: 'episodes' | 'tarot' | 'closet' | 'affinities' | 'gallery' | 'quarto') => {
     playSound('click');
     setActiveTab(tab);
   };
@@ -99,6 +100,18 @@ export const LobbyContainer: React.FC = () => {
           </button>
 
           <button
+            onClick={() => handleTabChange('quarto')}
+            className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all ${
+              activeTab === 'quarto'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/10'
+                : 'bg-white/5 text-slate-400 hover:text-white border border-white/5 hover:border-white/10'
+            }`}
+          >
+            <Music className="w-4 h-4 text-amber-300" />
+            <span>Meu Quarto (Piano)</span>
+          </button>
+
+          <button
             onClick={() => handleTabChange('tarot')}
             className={`px-5 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all ${
               activeTab === 'tarot'
@@ -163,6 +176,7 @@ export const LobbyContainer: React.FC = () => {
           {activeTab === 'closet' && <WardrobeCloset />}
           {activeTab === 'gallery' && <GalleryTab />}
           {activeTab === 'affinities' && <AffinityTracker />}
+          {activeTab === 'quarto' && <VeronicaPiano onClose={() => setActiveTab('episodes')} />}
         </div>
       </main>
     </div>
