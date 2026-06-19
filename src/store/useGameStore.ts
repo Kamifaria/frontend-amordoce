@@ -254,9 +254,6 @@ interface GameState {
   cluesFound: string[];
   setStoryStage: (stage: StoryStage) => void;
   collectClue: (clueId: string) => void;
-  unlockItem: (itemId: string) => void;
-  enterShop: () => void;
-  leaveLocation: (locationId: string) => void;
   isPianoActive: boolean;
   setIsPianoActive: (active: boolean) => void;
 
