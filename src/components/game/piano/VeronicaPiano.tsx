@@ -94,7 +94,7 @@ export const VeronicaPiano: React.FC<VeronicaPianoProps> = ({ onClose }) => {
                 <span>✨</span> Uma lembrança antiga...
               </h3>
               <p className="text-amber-800 mb-6 italic border-l-4 border-amber-400 pl-4 py-2">
-                "Você tocou a melodia secreta! Veronica sorri nostálgica, lembrando de um momento especial do passado."
+                &quot;Você tocou a melodia secreta! Veronica sorri nostálgica, lembrando de um momento especial do passado.&quot;
               </p>
               <button 
                 onClick={() => setShowSecretDialog(false)}

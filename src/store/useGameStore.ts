@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { Choice, DialogueNode, ChatMessage, ChatThread, StoryStage, EquippedOutfit, Achievement, DailyQuest, SweetGramPost, ScenarioItem } from '../shared/types';
 import { mockStory } from '../mock/storyData';
 
+declare global {
+  interface Window {
+    concertAudio?: HTMLAudioElement | null;
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
+
 const getShowInviteBranch = (affinities: Record<string, number>): string => {
   const harryAff = affinities.harry ?? 0;
   const kamiAff = affinities.kami ?? 0;
@@ -19,7 +26,7 @@ let sharedAudioCtx: AudioContext | null = null;
 const playSynthesizedSound = (type: 'tick' | 'heart' | 'choice' | 'ring' | 'connected' | 'click') => {
   if (typeof window === 'undefined') return;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
 
   try {
@@ -27,7 +34,7 @@ const playSynthesizedSound = (type: 'tick' | 'heart' | 'choice' | 'ring' | 'conn
       sharedAudioCtx = new AudioContextClass();
     }
     const ctx = sharedAudioCtx;
-    const initialPA = 99999;
+    
     
     // Resume context if suspended (browsers suspend audio contexts until user interaction)
     if (ctx.state === 'suspended') {
@@ -672,8 +679,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   toggleMute: () => {
     set((state) => {
       const nextMute = !state.isMuted;
-      if (typeof window !== 'undefined' && (window as any).concertAudio) {
-        ((window as any).concertAudio as HTMLAudioElement).muted = nextMute;
+      if (typeof window !== 'undefined' && window.concertAudio) {
+        (window.concertAudio as HTMLAudioElement).muted = nextMute;
       }
       // Synthesize a quick sound to give feedback if unmuting
       if (!nextMute) {
@@ -983,13 +990,13 @@ export const useGameStore = create<GameState>((set, get) => ({
         audio.volume = 0.35;
         audio.loop = false;
         audio.muted = get().isMuted;
-        (window as any).concertAudio = audio;
+        window.concertAudio = audio;
         audio.play().catch(e => console.warn('Could not auto-play audio', e));
       }
     } else if (nextNodeId === 'demo-end-node' || nextNodeId === 'concert-video-show') {
-      if (typeof window !== 'undefined' && (window as any).concertAudio) {
-        try { ((window as any).concertAudio as HTMLAudioElement).pause(); } catch (e) {}
-        (window as any).concertAudio = null;
+      if (typeof window !== 'undefined' && window.concertAudio) {
+        try { (window.concertAudio as HTMLAudioElement).pause(); } catch (e) {}
+        window.concertAudio = null;
       }
     }
 
@@ -1078,13 +1085,13 @@ export const useGameStore = create<GameState>((set, get) => ({
         audio.volume = 0.35;
         audio.loop = false;
         audio.muted = state.isMuted;
-        (window as any).concertAudio = audio;
+        window.concertAudio = audio;
         audio.play().catch(e => console.warn('Could not auto-play audio', e));
       }
     } else if (nextNodeId === 'demo-end-node' || nextNodeId === 'concert-video-show') {
-      if (typeof window !== 'undefined' && (window as any).concertAudio) {
-        try { ((window as any).concertAudio as HTMLAudioElement).pause(); } catch (e) {}
-        (window as any).concertAudio = null;
+      if (typeof window !== 'undefined' && window.concertAudio) {
+        try { (window.concertAudio as HTMLAudioElement).pause(); } catch (e) {}
+        window.concertAudio = null;
       }
     }
 
@@ -1180,7 +1187,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
 
       // Automatically apply affinity and gold
-      set((s) => ({
+      set(() => ({
         playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
@@ -1190,7 +1197,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const nextNode = state.storyTree[nextNodeId];
       if (nextNode) {
-        set((s) => ({
+        set(() => ({
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker,
           currentText: nextNode.text,
@@ -1211,7 +1218,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         goldReward = 10;
       }
 
-      set((s) => ({
+      set(() => ({
         playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
@@ -1221,7 +1228,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set((s) => ({
+        set(() => ({
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker,
           currentText: nextNode.text,
@@ -1241,7 +1248,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         goldReward = 5;
       }
 
-      set((s) => ({
+      set(() => ({
         playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
@@ -1251,7 +1258,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set((s) => ({
+        set(() => ({
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
           currentText: nextNode.text,
@@ -1265,7 +1272,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       const goldReward = score === 100 ? 15 : 5;
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set((s) => ({
+        set(() => ({
           playerGold: s.playerGold + goldReward,
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
@@ -1279,7 +1286,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       const nextNodeId = 'nathaniel-classroom-help';
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set((s) => ({
+        set(() => ({
           playerGold: s.playerGold + 10,
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
@@ -1971,7 +1978,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     // Check if there is already a thread, and if the last message was less than 5 minutes ago to avoid spam
     const thread = state.chatThreads.find(t => t.characterId === randomChar);
     if (thread && thread.messages.length > 0) {
-      const lastMsg = thread.messages[thread.messages.length - 1];
+      
       // Since timestamp is 'HH:MM', we just avoid sending if there's unread
       if (thread.unread) return;
     }
