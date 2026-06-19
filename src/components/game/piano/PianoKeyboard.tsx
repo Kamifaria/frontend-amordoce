@@ -208,5 +208,6 @@ export const PianoKeyboard: React.FC<{ onSecretTrigger: () => void; selectedSong
         </div>
       </div>
     </div>
+    </div>
   );
 };
