@@ -1187,7 +1187,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
 
       // Automatically apply affinity and gold
-      set(() => ({
+      set((s) => ({
         playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
@@ -1197,7 +1197,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const nextNode = state.storyTree[nextNodeId];
       if (nextNode) {
-        set(() => ({
+        set((s) => ({
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker,
           currentText: nextNode.text,
@@ -1218,7 +1218,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         goldReward = 10;
       }
 
-      set(() => ({
+      set((s) => ({
         playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
@@ -1228,7 +1228,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set(() => ({
+        set((s) => ({
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker,
           currentText: nextNode.text,
@@ -1248,7 +1248,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         goldReward = 5;
       }
 
-      set(() => ({
+      set((s) => ({
         playerGold: s.playerGold + goldReward,
         affinities: {
           ...s.affinities,
@@ -1258,7 +1258,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set(() => ({
+        set((s) => ({
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
           currentText: nextNode.text,
@@ -1272,7 +1272,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       const goldReward = score === 100 ? 15 : 5;
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set(() => ({
+        set((s) => ({
           playerGold: s.playerGold + goldReward,
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
@@ -1286,7 +1286,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       const nextNodeId = 'nathaniel-classroom-help';
       const nextNode = state.storyTree[nextNodeId] || mockStory[nextNodeId];
       if (nextNode) {
-        set(() => ({
+        set((s) => ({
           playerGold: s.playerGold + 10,
           currentNodeId: nextNodeId,
           currentSpeaker: nextNode.speaker || nextNode.characterName,
