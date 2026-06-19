@@ -421,11 +421,11 @@ export const PhoneOverlay: React.FC = () => {
                         return (
                           <div key={char.id} className="flex flex-col gap-2 p-1.5 bg-[#120e2b]/55 border border-purple-500/10 rounded-2xl shadow-sm">
                             <div className="flex items-center justify-between px-2 pt-1">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${char.avatarColor} flex items-center justify-center font-bold text-white text-base shadow`}>
+                              <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                                <div className={`w-10 h-10 shrink-0 rounded-full bg-gradient-to-tr ${char.avatarColor} flex items-center justify-center font-bold text-white text-base shadow`}>
                                   {char.initial}
                                 </div>
-                                <span className="font-semibold text-slate-100">{char.name}</span>
+                                <span className="font-semibold text-slate-100 truncate">{char.name}</span>
                               </div>
                               
                               {/* Call Button */}
@@ -546,12 +546,12 @@ export const PhoneOverlay: React.FC = () => {
                                   }}
                                   className="w-full flex items-center justify-between p-3 rounded-2xl bg-[#120e2b]/55 hover:bg-[#191438]/70 border border-purple-500/10 hover:border-pink-500/20 transition-all text-left cursor-pointer"
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center font-bold text-white text-base shadow`}>
+                                  <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+                                    <div className={`w-10 h-10 shrink-0 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center font-bold text-white text-base shadow`}>
                                       {thread.characterName.charAt(0)}
                                     </div>
-                                    <div className="max-w-[170px]">
-                                      <span className="font-semibold text-slate-100 text-sm block">{thread.characterName}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <span className="font-semibold text-slate-100 text-sm block truncate py-0.5">{thread.characterName}</span>
                                       <span className="text-[11px] text-slate-400 truncate block mt-0.5">
                                         {lastMsg ? lastMsg.text : 'Sem mensagens'}
                                       </span>
@@ -589,12 +589,12 @@ export const PhoneOverlay: React.FC = () => {
                               <button onClick={() => setActiveThreadId(null)} className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white cursor-pointer">
                                 <ChevronLeft size={18} />
                               </button>
-                              <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center font-bold text-white text-xs shadow`}>
+                              <div className={`w-8 h-8 shrink-0 rounded-full bg-gradient-to-tr ${thread.avatarColor} flex items-center justify-center font-bold text-white text-xs shadow`}>
                                 {thread.characterName.charAt(0)}
                               </div>
-                              <div className="text-left flex-1">
-                                <span className="font-bold text-slate-200 text-sm block leading-none">{thread.characterName}</span>
-                                <span className="text-[9px] text-emerald-400 font-semibold tracking-wider uppercase block mt-1">Online</span>
+                              <div className="text-left flex-1 min-w-0 pr-2">
+                                <span className="font-bold text-slate-200 text-sm block leading-normal truncate py-0.5">{thread.characterName}</span>
+                                <span className="text-[9px] text-emerald-400 font-semibold tracking-wider uppercase block mt-0.5">Online</span>
                               </div>
                             </div>
                             
